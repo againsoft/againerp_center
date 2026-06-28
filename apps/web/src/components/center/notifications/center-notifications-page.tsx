@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CheckCheck } from "lucide-react";
+import { CheckCheck, Loader2 } from "lucide-react";
 import { CenterEmptyState } from "@/components/center/center-empty-state";
 import { CenterPageHeader } from "@/components/center/center-page-header";
 import { CenterNotificationsList } from "@/components/center/notifications/center-notifications-list";
@@ -10,11 +10,8 @@ import {
   type CenterNotificationFilters,
 } from "@/components/center/notifications/center-notifications-toolbar";
 import { Button } from "@/components/ui/button";
-import {
-  centerPlatformNotifications,
-  filterCenterPlatformNotifications,
-  getCenterNotificationStats,
-} from "@/lib/mock-data/center";
+import { useNotificationsData } from "@/lib/hooks/notifications-context";
+import { filterCenterPlatformNotifications } from "@/lib/mock-data/center";
 import { useCenterNotificationStore } from "@/lib/store/center-notification-store";
 
 const defaultFilters: CenterNotificationFilters = {
@@ -27,19 +24,36 @@ const defaultFilters: CenterNotificationFilters = {
 export function CenterNotificationsPageContent() {
   const readIds = useCenterNotificationStore((s) => s.readIds);
   const markAllRead = useCenterNotificationStore((s) => s.markAllRead);
-  const stats = getCenterNotificationStats(readIds);
+  const { notifications, stats, loading, error } = useNotificationsData();
   const [filters, setFilters] = useState<CenterNotificationFilters>(defaultFilters);
 
   const filtered = useMemo(
-    () => filterCenterPlatformNotifications(centerPlatformNotifications, { ...filters, readIds }),
-    [filters, readIds],
+    () => filterCenterPlatformNotifications(notifications, { ...filters, readIds }),
+    [filters, readIds, notifications],
   );
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 py-16 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" /> Loading notifications…
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+        Could not load notifications: {error}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
       <CenterPageHeader
         breadcrumb="Control Center › Notifications"
         title="Platform Notifications"
+        live
         count={stats.total}
         description={`${stats.unread} unread · operational alerts across fleet, billing, agents, and security.`}
         actions={
@@ -47,7 +61,7 @@ export function CenterNotificationsPageContent() {
             variant="outline"
             size="sm"
             disabled={stats.unread === 0}
-            onClick={markAllRead}
+            onClick={() => markAllRead(notifications.map((n) => n.id))}
           >
             <CheckCheck className="mr-1.5 h-3.5 w-3.5" />
             Mark all read
@@ -65,7 +79,7 @@ export function CenterNotificationsPageContent() {
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        totalCount={centerPlatformNotifications.length}
+        totalCount={notifications.length}
       />
 
       {filtered.length === 0 ? (

@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Keep trailing slashes on proxied API paths — FastAPI list routes use `/clients/` etc.
+  skipTrailingSlashRedirect: true,
   async rewrites() {
     return [
       {

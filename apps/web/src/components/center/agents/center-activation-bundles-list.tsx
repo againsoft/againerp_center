@@ -1,26 +1,33 @@
 "use client";
 
-import { CenterEmptyState } from "@/components/center/center-empty-state";
 import { useMemo, useState } from "react";
 import { CenterActivationBundlesGrid } from "@/components/center/agents/center-activation-bundles-grid";
 import {
   CenterActivationBundlesToolbar,
   type CenterActivationBundleFilters,
 } from "@/components/center/agents/center-activation-bundles-toolbar";
+import { CenterEmptyState } from "@/components/center/center-empty-state";
 import { Button } from "@/components/ui/button";
-import { centerActivationBundles, filterCenterActivationBundles } from "@/lib/mock-data/center";
+import {
+  filterCenterActivationBundles,
+  type CenterActivationBundle,
+} from "@/lib/mock-data/center";
 
 const defaultFilters: CenterActivationBundleFilters = {
   search: "",
   status: "all",
 };
 
-export function CenterActivationBundlesList() {
+type Props = {
+  bundles: CenterActivationBundle[];
+};
+
+export function CenterActivationBundlesList({ bundles }: Props) {
   const [filters, setFilters] = useState<CenterActivationBundleFilters>(defaultFilters);
 
   const filtered = useMemo(
-    () => filterCenterActivationBundles(centerActivationBundles, filters),
-    [filters],
+    () => filterCenterActivationBundles(bundles, filters),
+    [bundles, filters],
   );
 
   return (
@@ -29,16 +36,18 @@ export function CenterActivationBundlesList() {
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        totalCount={centerActivationBundles.length}
+        totalCount={bundles.length}
       />
 
       {filtered.length === 0 ? (
         <CenterEmptyState
-          title="No activation bundles match your filters"
+          title={bundles.length === 0 ? "No activation bundles yet" : "No bundles match your filters"}
           action={
-            <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
-              Reset filters
-            </Button>
+            bundles.length === 0 ? undefined : (
+              <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
+                Reset filters
+              </Button>
+            )
           }
         />
       ) : (

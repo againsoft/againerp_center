@@ -24,15 +24,18 @@ const defaultFilters: CenterClientFilters = {
 export function CenterClientsList({ refreshKey = 0 }: { refreshKey?: number }) {
   const [clients, setClients] = useState<CenterClient[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<CenterClientFilters>(defaultFilters);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await fetchClients();
       setClients(apiClientsToCenterClients(data));
-    } catch {
+    } catch (e) {
       setClients([]);
+      setError(e instanceof Error ? e.message : "Failed to load clients");
     } finally {
       setLoading(false);
     }
@@ -63,6 +66,12 @@ export function CenterClientsList({ refreshKey = 0 }: { refreshKey?: number }) {
 
   return (
     <div className="space-y-4">
+      {error ? (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+          Could not load clients: {error}
+        </div>
+      ) : null}
+
       <CenterClientsToolbar
         filters={filters}
         onChange={setFilters}

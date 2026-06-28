@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CenterBackupRunsTable } from "@/components/center/backups/center-backup-runs-table";
 import { CenterBackupsList } from "@/components/center/backups/center-backups-list";
+import type { CenterBackupRecord, CenterClientBackupStatus } from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 
 const views = [
@@ -10,7 +11,23 @@ const views = [
   { key: "runs" as const, label: "Recent runs" },
 ];
 
-export function CenterBackupsView() {
+type Props = {
+  fleet: CenterClientBackupStatus[];
+  runs: CenterBackupRecord[];
+  loading?: boolean;
+  onTriggerBackup: (clientId: string) => Promise<void>;
+  onVerifyRun: (recordId: string) => Promise<void>;
+  getClientRuns: (clientId: string) => CenterBackupRecord[];
+};
+
+export function CenterBackupsView({
+  fleet,
+  runs,
+  loading,
+  onTriggerBackup,
+  onVerifyRun,
+  getClientRuns,
+}: Props) {
   const [view, setView] = useState<"fleet" | "runs">("fleet");
 
   return (
@@ -33,7 +50,17 @@ export function CenterBackupsView() {
         ))}
       </div>
 
-      {view === "fleet" ? <CenterBackupsList /> : <CenterBackupRunsTable />}
+      {view === "fleet" ? (
+        <CenterBackupsList
+          fleet={fleet}
+          loading={loading}
+          onTriggerBackup={onTriggerBackup}
+          onVerifyRun={onVerifyRun}
+          getClientRuns={getClientRuns}
+        />
+      ) : (
+        <CenterBackupRunsTable runs={runs} loading={loading} />
+      )}
     </div>
   );
 }

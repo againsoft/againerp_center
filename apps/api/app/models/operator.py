@@ -19,4 +19,8 @@ class Operator(Base):
     role: Mapped[str] = mapped_column(String(30), nullable=False, default="operator")
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     last_login: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    mfa_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    mfa_secret: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    mfa_type: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    mfa_pending_secret: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())

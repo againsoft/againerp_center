@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Download, Play, ShieldCheck } from "lucide-react";
+import { Download, Loader2, Play, ShieldCheck } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -19,22 +20,53 @@ import {
   centerBackupStorageLabels,
   formatBackupSizeMb,
   formatCenterPlan,
-  getCenterBackupRecordsForClient,
+  type CenterBackupRecord,
   type CenterClientBackupStatus,
 } from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 
 type Props = {
   status: CenterClientBackupStatus | null;
+  records: CenterBackupRecord[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onTriggerBackup: (clientId: string) => Promise<void>;
+  onVerifyRun: (recordId: string) => Promise<void>;
 };
 
-export function CenterBackupDetailSheet({ status, open, onOpenChange }: Props) {
+export function CenterBackupDetailSheet({
+  status,
+  records,
+  open,
+  onOpenChange,
+  onTriggerBackup,
+  onVerifyRun,
+}: Props) {
+  const [busy, setBusy] = useState(false);
+
   if (!status) return null;
 
-  const records = getCenterBackupRecordsForClient(status.clientId);
   const overdue = status.hoursSinceBackup > status.policyMaxAgeHours;
+  const latestCompleted = records.find((r) => r.status === "completed" || r.status === "verified");
+
+  async function handleTrigger() {
+    setBusy(true);
+    try {
+      await onTriggerBackup(status!.clientId);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleVerify() {
+    if (!latestCompleted) return;
+    setBusy(true);
+    try {
+      await onVerifyRun(latestCompleted.id);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -118,21 +150,31 @@ export function CenterBackupDetailSheet({ status, open, onOpenChange }: Props) {
           </div>
 
           <div className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
-            Backup files remain on client infrastructure (local, S3, or NAS). Control Center stores
-            checksums, sizes, and verification status only — never backup payloads.
+            Backup files remain on client infrastructure (local, S3, or NAS). Control Center stores checksums,
+            sizes, and verification status only — never backup payloads.
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2 border-t p-4">
-          <Button variant="outline" size="sm" className="flex-1" disabled>
-            <Play className="mr-1.5 h-3.5 w-3.5" />
+          <Button variant="outline" size="sm" className="flex-1" disabled={busy} onClick={() => void handleTrigger()}>
+            {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Play className="mr-1.5 h-3.5 w-3.5" />}
             Trigger backup
           </Button>
-          <Button variant="outline" size="sm" className="flex-1" disabled>
-            <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            disabled={busy || !latestCompleted || latestCompleted.status === "verified"}
+            onClick={() => void handleVerify()}
+          >
+            {busy ? (
+              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
+            )}
             Run verify
           </Button>
-          <Button variant="outline" size="sm" className="w-full" disabled>
+          <Button variant="outline" size="sm" className="w-full" disabled title="Restore initiated via DR workflow">
             <Download className="mr-1.5 h-3.5 w-3.5" />
             Initiate restore (DR)
           </Button>

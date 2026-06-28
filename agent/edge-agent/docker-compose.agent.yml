@@ -1,0 +1,13 @@
+services:
+  edge-agent:
+    build: .
+    container_name: againerp-edge-agent
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - agent_data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  agent_data:

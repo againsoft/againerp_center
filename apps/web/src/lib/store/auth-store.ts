@@ -9,12 +9,14 @@ type Operator = {
   username: string;
   role: string;
   full_name: string | null;
+  mfa_enabled?: boolean;
 };
 
 type AuthState = {
   token: string | null;
   operator: Operator | null;
   setAuth: (token: string, operator: Operator) => void;
+  updateToken: (token: string) => void;
   clearAuth: () => void;
 };
 
@@ -26,6 +28,10 @@ export const useAuthStore = create<AuthState>()(
       setAuth: (token, operator) => {
         localStorage.setItem("center_token", token);
         set({ token, operator });
+      },
+      updateToken: (token) => {
+        localStorage.setItem("center_token", token);
+        set({ token });
       },
       clearAuth: () => {
         localStorage.removeItem("center_token");

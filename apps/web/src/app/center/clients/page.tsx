@@ -16,6 +16,7 @@ export default function CenterClientsPage() {
       <CenterPageHeader
         breadcrumb="Control Center › Clients"
         title="ERP Clients"
+        live
         description="Fleet registry — subscriptions, modules, agent health, and lifecycle management."
         actions={
           <Button size="sm" onClick={() => setShowForm(true)}>

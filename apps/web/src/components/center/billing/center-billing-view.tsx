@@ -3,6 +3,8 @@
 import { Suspense, useState } from "react";
 import { CenterBillingFleetTable } from "@/components/center/billing/center-billing-fleet-table";
 import { CenterBillingInvoicesList } from "@/components/center/billing/center-billing-invoices-list";
+import type { BillingStats } from "@/lib/hooks/use-billing-data";
+import type { CenterBillingInvoice, CenterClientSubscription } from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 
 const views = [
@@ -10,7 +12,15 @@ const views = [
   { key: "mrr" as const, label: "Fleet MRR" },
 ];
 
-export function CenterBillingView() {
+type Props = {
+  invoices: CenterBillingInvoice[];
+  subscriptions: CenterClientSubscription[];
+  stats: BillingStats;
+  pastDueClients: string[];
+  loading?: boolean;
+};
+
+export function CenterBillingView({ invoices, subscriptions, stats, pastDueClients, loading }: Props) {
   const [view, setView] = useState<"invoices" | "mrr">("invoices");
 
   return (
@@ -35,10 +45,15 @@ export function CenterBillingView() {
 
       {view === "invoices" ? (
         <Suspense fallback={null}>
-          <CenterBillingInvoicesList />
+          <CenterBillingInvoicesList
+            invoices={invoices}
+            stats={stats}
+            pastDueClients={pastDueClients}
+            loading={loading}
+          />
         </Suspense>
       ) : (
-        <CenterBillingFleetTable />
+        <CenterBillingFleetTable subscriptions={subscriptions} loading={loading} />
       )}
     </div>
   );

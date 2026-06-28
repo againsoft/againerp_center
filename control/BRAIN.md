@@ -14,10 +14,25 @@ Entry point for the AgainERP Control Center standalone project.
 
 ## Rules
 
-- **Documentation first** — no backend/frontend code until architecture approved
+- **Follow architecture docs** — [`ControlCenter/MASTER_INDEX.md`](./ControlCenter/MASTER_INDEX.md)
 - **Metadata only** — never store client business data in Control Center
 - **Follow AgainERP standards** — [TECHNOLOGY_CONSTITUTION](../againerp/docs/00-foundation/TECHNOLOGY_CONSTITUTION.md)
 - **Edge Agent** is the only bridge to client servers
+
+## Implementation Status
+
+**Phase 2 Growth — IN PROGRESS** (v2.0.0-alpha)
+
+| Component | Path | Status |
+|-----------|------|--------|
+| API | `apps/api/` | Phase 1 + billing + MFA + OpenAPI 3.1 |
+| UI | `apps/web/` | Billing, Updates, Modules, Backups, MFA, API keys, AI, Agent console live |
+| OpenAPI | `docs/api/openapi/` | Static + live `/openapi.json` |
+| Edge Agent | `agent/edge-agent/` | Heartbeat sender |
+| Deploy | `deploy/docker/` | PostgreSQL + Redis |
+| Scripts | `setup.sh`, `start.sh`, `scripts/` | Dev tooling |
+
+**Phase 2 next:** Wire notifications + dashboard briefing to live API.
 
 ## Parent Ecosystem
 

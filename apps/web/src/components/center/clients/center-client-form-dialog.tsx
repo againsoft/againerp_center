@@ -39,6 +39,7 @@ export function CenterClientFormDialog({ open, onOpenChange, onCreated }: Props)
   const [showPw, setShowPw] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [agentToken, setAgentToken] = useState<string | null>(null);
 
   const set = <K extends keyof CreateClientPayload>(key: K, value: CreateClientPayload[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -47,16 +48,28 @@ export function CenterClientFormDialog({ open, onOpenChange, onCreated }: Props)
     e.preventDefault();
     setSaving(true);
     setError(null);
+    setAgentToken(null);
     try {
-      await createClient(form);
-      setForm({ ...EMPTY });
-      onOpenChange(false);
-      onCreated();
+      const created = await createClient(form);
+      if (created.agent_token) {
+        setAgentToken(created.agent_token);
+      } else {
+        setForm({ ...EMPTY });
+        onOpenChange(false);
+        onCreated();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
     } finally {
       setSaving(false);
     }
+  }
+
+  function handleDone() {
+    setForm({ ...EMPTY });
+    setAgentToken(null);
+    onOpenChange(false);
+    onCreated();
   }
 
   return (
@@ -68,6 +81,23 @@ export function CenterClientFormDialog({ open, onOpenChange, onCreated }: Props)
         </SheetDescription>
 
         <form onSubmit={(e) => void handleSubmit(e)} className="mt-6 space-y-4">
+          {agentToken ? (
+            <div className="space-y-4">
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30">
+                <p className="text-sm font-medium text-emerald-900 dark:text-emerald-200">Client created successfully</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Save this Edge Agent token — it is shown only once.
+                </p>
+                <code className="mt-3 block break-all rounded-md bg-background p-3 font-mono text-xs">
+                  {agentToken}
+                </code>
+              </div>
+              <div className="flex justify-end">
+                <Button type="button" size="sm" onClick={handleDone}>Done</Button>
+              </div>
+            </div>
+          ) : (
+          <>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Store name *">
               <Input required value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="MoharazNX" />
@@ -143,6 +173,8 @@ export function CenterClientFormDialog({ open, onOpenChange, onCreated }: Props)
               Save client
             </Button>
           </div>
+          </>
+          )}
         </form>
       </SheetContent>
     </Sheet>

@@ -9,28 +9,28 @@ import {
   type CenterLicenseFilters,
 } from "@/components/center/licenses/center-licenses-toolbar";
 import { Button } from "@/components/ui/button";
-import {
-  centerLicenses,
-  filterCenterLicenses,
-  type CenterLicense,
-} from "@/lib/mock-data/center";
+import { filterCenterLicenses, type CenterLicense } from "@/lib/mock-data/center";
 
 const defaultFilters: CenterLicenseFilters = {
   search: "",
   status: "all",
 };
 
-export function CenterLicensesList() {
+type Props = {
+  licenses: CenterLicense[];
+};
+
+export function CenterLicensesList({ licenses }: Props) {
   const [filters, setFilters] = useState<CenterLicenseFilters>(defaultFilters);
   const [selected, setSelected] = useState<CenterLicense | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const filtered = useMemo(
-    () => filterCenterLicenses(centerLicenses, filters),
-    [filters],
+    () => filterCenterLicenses(licenses, filters),
+    [licenses, filters],
   );
 
-  const graceCount = centerLicenses.filter((l) => l.status === "grace").length;
+  const graceCount = licenses.filter((l) => l.status === "grace").length;
 
   function openLicense(lic: CenterLicense) {
     setSelected(lic);
@@ -50,16 +50,23 @@ export function CenterLicensesList() {
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        licenses={centerLicenses}
+        licenses={licenses}
       />
 
       {filtered.length === 0 ? (
         <CenterEmptyState
-          title="No licenses match your filters"
+          title={licenses.length === 0 ? "No licenses yet" : "No licenses match your filters"}
+          description={
+            licenses.length === 0
+              ? "Licenses are issued automatically when you add a client."
+              : "Try clearing filters or search with a different term."
+          }
           action={
-            <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
-              Reset filters
-            </Button>
+            licenses.length === 0 ? undefined : (
+              <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
+                Reset filters
+              </Button>
+            )
           }
         />
       ) : (

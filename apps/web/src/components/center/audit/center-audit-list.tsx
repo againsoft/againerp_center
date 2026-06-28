@@ -10,12 +10,7 @@ import {
   type CenterAuditFilters,
 } from "@/components/center/audit/center-audit-toolbar";
 import { Button } from "@/components/ui/button";
-import {
-  centerAuditLogs,
-  filterCenterAuditLogs,
-  getCenterAuditLog,
-  type CenterAuditLogEntry,
-} from "@/lib/mock-data/center";
+import { filterCenterAuditLogs, type CenterAuditLogEntry } from "@/lib/mock-data/center";
 
 const defaultFilters: CenterAuditFilters = {
   search: "",
@@ -23,7 +18,11 @@ const defaultFilters: CenterAuditFilters = {
   resourceType: "all",
 };
 
-export function CenterAuditList() {
+type Props = {
+  logs: CenterAuditLogEntry[];
+};
+
+export function CenterAuditList({ logs }: Props) {
   const searchParams = useSearchParams();
   const entryParam = searchParams.get("entry");
 
@@ -31,16 +30,16 @@ export function CenterAuditList() {
   const [selected, setSelected] = useState<CenterAuditLogEntry | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const filtered = useMemo(() => filterCenterAuditLogs(centerAuditLogs, filters), [filters]);
+  const filtered = useMemo(() => filterCenterAuditLogs(logs, filters), [logs, filters]);
 
   useEffect(() => {
     if (!entryParam) return;
-    const log = getCenterAuditLog(entryParam);
+    const log = logs.find((l) => l.id === entryParam);
     if (log) {
       setSelected(log);
       setSheetOpen(true);
     }
-  }, [entryParam]);
+  }, [entryParam, logs]);
 
   function openLog(log: CenterAuditLogEntry) {
     setSelected(log);
@@ -58,16 +57,23 @@ export function CenterAuditList() {
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        totalCount={centerAuditLogs.length}
+        totalCount={logs.length}
       />
 
       {filtered.length === 0 ? (
         <CenterEmptyState
-          title="No audit entries match your filters"
+          title={logs.length === 0 ? "No audit entries yet" : "No audit entries match your filters"}
+          description={
+            logs.length === 0
+              ? "Actions appear here when operators create or modify clients, licenses, and subscriptions."
+              : "Try clearing filters or search with a different term."
+          }
           action={
-            <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
-              Reset filters
-            </Button>
+            logs.length === 0 ? undefined : (
+              <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
+                Reset filters
+              </Button>
+            )
           }
         />
       ) : (

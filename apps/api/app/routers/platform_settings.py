@@ -10,6 +10,7 @@ from app.database import get_db
 from app.deps.auth import get_current_operator
 from app.models.platform_setting import PlatformSetting
 from app.models.operator import Operator
+from app.services.pagespeed_service import test_pagespeed_api_key
 
 router = APIRouter(prefix="/platform-settings", tags=["platform-settings"])
 
@@ -49,7 +50,7 @@ class SettingUpsert(BaseModel):
     value: str
 
 
-@router.get("/", response_model=list[SettingOut])
+@router.get("", response_model=list[SettingOut])
 def list_settings(db: Session = Depends(get_db), _: Operator = Depends(get_current_operator)) -> list[SettingOut]:
     rows = {r.key: r for r in db.query(PlatformSetting).all()}
     return [
@@ -64,6 +65,11 @@ def list_settings(db: Session = Depends(get_db), _: Operator = Depends(get_curre
         )
         for key, meta in KNOWN_KEYS.items()
     ]
+
+
+@router.post("/pagespeed_api_key/test")
+def test_pagespeed_key(db: Session = Depends(get_db), _: Operator = Depends(get_current_operator)) -> dict:
+    return test_pagespeed_api_key(db)
 
 
 @router.put("/{key}", response_model=SettingOut)
@@ -89,8 +95,3 @@ def clear_setting(key: str, db: Session = Depends(get_db), _: Operator = Depends
         row.value = None
         db.commit()
     return {"cleared": True}
-
-
-def get_platform_setting(db: Session, key: str) -> Optional[str]:
-    row = db.query(PlatformSetting).filter(PlatformSetting.key == key).first()
-    return row.value if row else None

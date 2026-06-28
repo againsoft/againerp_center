@@ -11,7 +11,7 @@ export type PlatformSetting = {
 };
 
 export async function fetchPlatformSettings(): Promise<PlatformSetting[]> {
-  return apiFetch<PlatformSetting[]>("/api/v1/platform-settings/");
+  return apiFetch<PlatformSetting[]>("/api/v1/platform-settings");
 }
 
 export async function upsertPlatformSetting(key: string, value: string): Promise<PlatformSetting> {
@@ -24,4 +24,19 @@ export async function upsertPlatformSetting(key: string, value: string): Promise
 
 export async function clearPlatformSetting(key: string): Promise<void> {
   await apiFetch(`/api/v1/platform-settings/${key}`, { method: "DELETE" });
+}
+
+export type PageSpeedTestResult = {
+  ok: boolean;
+  message: string;
+  url?: string;
+  strategy?: string;
+  performance_score?: number;
+  analysis_url?: string;
+};
+
+export async function testPageSpeedApiKey(): Promise<PageSpeedTestResult> {
+  return apiFetch<PageSpeedTestResult>("/api/v1/platform-settings/pagespeed_api_key/test", {
+    method: "POST",
+  });
 }

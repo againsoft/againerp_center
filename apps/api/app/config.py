@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 10080
     cors_origins: str = "http://localhost:3001,http://127.0.0.1:3001"
+    mfa_enforce: bool = False
+    stripe_webhook_secret: str = ""
+    stripe_api_key: str = ""
 
     class Config:
         env_file = ".env"

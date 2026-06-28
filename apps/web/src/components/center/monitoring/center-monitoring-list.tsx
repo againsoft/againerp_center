@@ -12,10 +12,10 @@ import {
 } from "@/components/center/monitoring/center-monitoring-toolbar";
 import { Button } from "@/components/ui/button";
 import {
-  centerAgentHeartbeats,
   filterCenterAgentHeartbeats,
-  getCenterAgentHeartbeat,
   type CenterAgentHeartbeat,
+  type CenterAgentMetricPoint,
+  type CenterMonitoringAlert,
 } from "@/lib/mock-data/center";
 
 const defaultFilters: CenterMonitoringFilters = {
@@ -24,7 +24,13 @@ const defaultFilters: CenterMonitoringFilters = {
   deployment: "all",
 };
 
-export function CenterMonitoringList() {
+type Props = {
+  heartbeats: CenterAgentHeartbeat[];
+  alerts: CenterMonitoringAlert[];
+  clientSeries: Record<string, CenterAgentMetricPoint[]>;
+};
+
+export function CenterMonitoringList({ heartbeats, alerts, clientSeries }: Props) {
   const searchParams = useSearchParams();
   const clientParam = searchParams.get("client");
 
@@ -33,18 +39,18 @@ export function CenterMonitoringList() {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const filtered = useMemo(
-    () => filterCenterAgentHeartbeats(centerAgentHeartbeats, filters),
-    [filters],
+    () => filterCenterAgentHeartbeats(heartbeats, filters),
+    [heartbeats, filters],
   );
 
   useEffect(() => {
     if (!clientParam) return;
-    const hb = getCenterAgentHeartbeat(clientParam);
+    const hb = heartbeats.find((h) => h.clientId === clientParam);
     if (hb) {
       setSelected(hb);
       setSheetOpen(true);
     }
-  }, [clientParam]);
+  }, [clientParam, heartbeats]);
 
   function openHeartbeat(hb: CenterAgentHeartbeat) {
     setSelected(hb);
@@ -52,28 +58,35 @@ export function CenterMonitoringList() {
   }
 
   function openClientFromAlert(clientId: string) {
-    const hb = getCenterAgentHeartbeat(clientId);
+    const hb = heartbeats.find((h) => h.clientId === clientId);
     if (hb) openHeartbeat(hb);
   }
 
   return (
     <>
-      <CenterMonitoringAlerts onViewClient={openClientFromAlert} />
+      <CenterMonitoringAlerts alerts={alerts} onViewClient={openClientFromAlert} />
 
       <CenterMonitoringToolbar
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        totalCount={centerAgentHeartbeats.length}
+        totalCount={heartbeats.length}
       />
 
       {filtered.length === 0 ? (
         <CenterEmptyState
-          title="No agents match your filters"
+          title={heartbeats.length === 0 ? "No clients in fleet" : "No agents match your filters"}
+          description={
+            heartbeats.length === 0
+              ? "Add clients and start Edge Agent to see monitoring data."
+              : "Try clearing filters or search with a different term."
+          }
           action={
-            <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
-              Reset filters
-            </Button>
+            heartbeats.length === 0 ? undefined : (
+              <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
+                Reset filters
+              </Button>
+            )
           }
         />
       ) : (
@@ -82,6 +95,7 @@ export function CenterMonitoringList() {
 
       <CenterMonitoringDetailSheet
         heartbeat={selected}
+        metricSeries={selected ? (clientSeries[selected.clientId] ?? []) : []}
         open={sheetOpen}
         onOpenChange={setSheetOpen}
       />

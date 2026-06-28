@@ -75,6 +75,9 @@ export function CenterOperatorDetailSheet({ operator, open, onOpenChange }: Prop
           </div>
 
           <Button asChild variant="link" size="sm" className="h-auto p-0 text-violet-600">
+            <Link href="/center/settings/security">Manage MFA settings</Link>
+          </Button>
+          <Button asChild variant="link" size="sm" className="h-auto p-0 text-violet-600">
             <Link href="/center/audit">View audit log for this operator</Link>
           </Button>
         </div>

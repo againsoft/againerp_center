@@ -1,13 +1,17 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { centerPlatformAiAgents } from "@/lib/mock-data/center";
+import type { CenterPlatformAiAgent } from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 
-export function CenterPlatformAiAgents() {
+type Props = {
+  agents: CenterPlatformAiAgent[];
+};
+
+export function CenterPlatformAiAgents({ agents }: Props) {
   return (
     <div className="grid gap-3 md:grid-cols-2">
-      {centerPlatformAiAgents.map((agent) => (
+      {agents.map((agent) => (
         <div key={agent.id} className="rounded-xl border bg-card p-4">
           <div className="mb-2 flex items-start justify-between gap-2">
             <h2 className="font-semibold">{agent.label}</h2>

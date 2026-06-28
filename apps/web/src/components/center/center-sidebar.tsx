@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeft, PanelLeftClose } from "lucide-react";
 import { centerNavGroups } from "@/lib/navigation/center-nav";
-import { getCenterPendingRegistrationCount, centerPlatformNotifications } from "@/lib/mock-data/center";
-import { useCenterNotificationStore } from "@/lib/store/center-notification-store";
+import { isCenterLiveRoute } from "@/lib/navigation/center-live-routes";
+import { CenterLiveDataBadge } from "@/components/center/center-live-data-badge";
+import { getCenterPendingRegistrationCount } from "@/lib/mock-data/center";
+import { useNotificationsData } from "@/lib/hooks/notifications-context";
 import { useCenterSidebarStore } from "@/lib/store/center-sidebar-store";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -28,10 +30,8 @@ export function CenterSidebar({ className, onNavigate }: Props) {
   const pathname = usePathname();
   const collapsed = useCenterSidebarStore((s) => s.collapsed);
   const toggleCollapsed = useCenterSidebarStore((s) => s.toggle);
-  const readIds = useCenterNotificationStore((s) => s.readIds);
-  const unreadNotifications = centerPlatformNotifications.filter(
-    (n) => !readIds.includes(n.id),
-  ).length;
+  const { stats: notificationStats } = useNotificationsData();
+  const unreadNotifications = notificationStats.unread;
   const pendingRegistrations = getCenterPendingRegistrationCount();
 
   return (
@@ -80,6 +80,9 @@ export function CenterSidebar({ className, onNavigate }: Props) {
                     {!collapsed ? (
                       <>
                         <span className="flex-1 truncate">{item.title}</span>
+                        {isCenterLiveRoute(item.href) ? (
+                          <CenterLiveDataBadge compact className="mr-0.5" />
+                        ) : null}
                         {badge ? (
                           <Badge variant="secondary" className="h-5 min-w-5 px-1 text-[10px]">
                             {badge}
@@ -90,6 +93,8 @@ export function CenterSidebar({ className, onNavigate }: Props) {
                       <span className="absolute right-1 top-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-violet-600 px-0.5 text-[8px] font-medium leading-none text-white">
                         {badge}
                       </span>
+                    ) : isCenterLiveRoute(item.href) ? (
+                      <CenterLiveDataBadge compact className="absolute bottom-1 right-1" />
                     ) : null}
                   </Link>
                 );

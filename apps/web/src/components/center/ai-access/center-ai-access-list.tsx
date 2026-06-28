@@ -12,9 +12,8 @@ import { CenterAiRecommendations } from "@/components/center/ai-access/center-ai
 import { CenterEmptyState } from "@/components/center/center-empty-state";
 import { Button } from "@/components/ui/button";
 import {
-  centerClientAiAccess,
   filterCenterClientAiAccess,
-  getCenterClientAiAccess,
+  type CenterAiRecommendation,
   type CenterClientAiAccess,
 } from "@/lib/mock-data/center";
 
@@ -24,7 +23,13 @@ const defaultFilters: CenterAiAccessFilters = {
   creditStatus: "all",
 };
 
-export function CenterAiAccessList() {
+type Props = {
+  fleet: CenterClientAiAccess[];
+  recommendations: CenterAiRecommendation[];
+  getClientAccess: (clientId: string) => CenterClientAiAccess | undefined;
+};
+
+export function CenterAiAccessList({ fleet, recommendations, getClientAccess }: Props) {
   const searchParams = useSearchParams();
   const clientParam = searchParams.get("client");
 
@@ -33,18 +38,18 @@ export function CenterAiAccessList() {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const filtered = useMemo(
-    () => filterCenterClientAiAccess(centerClientAiAccess, filters),
-    [filters],
+    () => filterCenterClientAiAccess(fleet, filters),
+    [fleet, filters],
   );
 
   useEffect(() => {
     if (!clientParam) return;
-    const row = getCenterClientAiAccess(clientParam);
+    const row = getClientAccess(clientParam);
     if (row) {
       setSelected(row);
       setSheetOpen(true);
     }
-  }, [clientParam]);
+  }, [clientParam, getClientAccess]);
 
   function openAccess(row: CenterClientAiAccess) {
     setSelected(row);
@@ -52,29 +57,31 @@ export function CenterAiAccessList() {
   }
 
   function openClientFromRec(clientId: string) {
-    const row = getCenterClientAiAccess(clientId);
+    const row = getClientAccess(clientId);
     if (row) openAccess(row);
   }
 
   return (
     <>
-      <CenterAiRecommendations onViewClient={openClientFromRec} />
+      <CenterAiRecommendations recommendations={recommendations} onViewClient={openClientFromRec} />
 
       <CenterAiAccessToolbar
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        totalCount={centerClientAiAccess.length}
+        totalCount={fleet.length}
       />
 
       {filtered.length === 0 ? (
         <CenterEmptyState
-          title="No clients match your filters"
-          description="Adjust AI enabled or credit status filters."
+          title={fleet.length === 0 ? "No clients in fleet yet" : "No clients match your filters"}
+          description={fleet.length === 0 ? "Approve a registration or create a client first." : "Adjust AI enabled or credit status filters."}
           action={
-            <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
-              Reset filters
-            </Button>
+            fleet.length === 0 ? undefined : (
+              <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
+                Reset filters
+              </Button>
+            )
           }
         />
       ) : (

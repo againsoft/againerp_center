@@ -1,5 +1,6 @@
 "use client";
 
+import { CenterLiveDataBadge } from "@/components/center/center-live-data-badge";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -9,7 +10,10 @@ type Props = {
   count?: number;
   description?: string;
   actions?: React.ReactNode;
+  /** Show mock UI Preview badge (default false when live) */
   preview?: boolean;
+  /** Page reads from Control Center API + PostgreSQL */
+  live?: boolean;
   className?: string;
 };
 
@@ -19,7 +23,8 @@ export function CenterPageHeader({
   count,
   description,
   actions,
-  preview = true,
+  preview = false,
+  live = false,
   className,
 }: Props) {
   return (
@@ -37,7 +42,8 @@ export function CenterPageHeader({
         ) : null}
       </div>
       <div className="flex shrink-0 flex-wrap items-center gap-2">
-        {preview ? (
+        {live ? <CenterLiveDataBadge /> : null}
+        {!live && preview ? (
           <Badge variant="outline" className="border-violet-300 text-violet-700 dark:text-violet-300">
             UI Preview
           </Badge>

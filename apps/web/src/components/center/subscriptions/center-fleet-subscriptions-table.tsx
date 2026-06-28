@@ -11,7 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  centerClientSubscriptions,
   centerSubscriptionStatusColors,
   formatCenterPlan,
   type CenterClientSubscription,
@@ -19,12 +18,10 @@ import {
 import { cn, formatCurrency } from "@/lib/utils";
 
 type Props = {
-  subscriptions?: CenterClientSubscription[];
+  subscriptions: CenterClientSubscription[];
 };
 
-export function CenterFleetSubscriptionsTable({
-  subscriptions = centerClientSubscriptions,
-}: Props) {
+export function CenterFleetSubscriptionsTable({ subscriptions }: Props) {
   return (
     <div className="rounded-lg border bg-card">
       <div className="border-b px-4 py-3">

@@ -1,11 +1,20 @@
 "use client";
 
 import { Bot, Lock, Server, User } from "lucide-react";
-import { getCenterAuditStats } from "@/lib/mock-data/center";
 
-export function CenterAuditStats() {
-  const stats = getCenterAuditStats();
+type AuditStats = {
+  total: number;
+  operator: number;
+  system: number;
+  agent: number;
+  security: number;
+};
 
+type Props = {
+  stats: AuditStats;
+};
+
+export function CenterAuditStats({ stats }: Props) {
   const cards = [
     {
       label: "Total entries",

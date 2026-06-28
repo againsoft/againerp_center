@@ -16,6 +16,7 @@ export type ApiClient = {
   notes: string | null;
   created_at: string | null;
   updated_at: string | null;
+  agent_token?: string;
 };
 
 export type CreateClientPayload = {
@@ -33,7 +34,7 @@ export type CreateClientPayload = {
 };
 
 export async function fetchClients(): Promise<ApiClient[]> {
-  return apiFetch<ApiClient[]>("/api/v1/clients/");
+  return apiFetch<ApiClient[]>("/api/v1/clients");
 }
 
 export async function fetchClient(id: string): Promise<ApiClient> {
@@ -41,7 +42,7 @@ export async function fetchClient(id: string): Promise<ApiClient> {
 }
 
 export async function createClient(payload: CreateClientPayload): Promise<ApiClient> {
-  return apiFetch<ApiClient>("/api/v1/clients/", {
+  return apiFetch<ApiClient>("/api/v1/clients", {
     method: "POST",
     body: JSON.stringify(payload),
   });

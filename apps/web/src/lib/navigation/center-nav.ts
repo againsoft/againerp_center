@@ -17,12 +17,15 @@ import {
   Wallet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { isCenterLiveRoute } from "@/lib/navigation/center-live-routes";
 
 export type CenterNavItem = {
   title: string;
   href: string;
   icon: LucideIcon;
   badge?: string;
+  /** Wired to live API + PostgreSQL */
+  live?: boolean;
   /** UI design step — for placeholder screens */
   uiStep?: string;
 };
@@ -82,4 +85,9 @@ export const centerNavGroups: CenterNavGroup[] = [
 ];
 
 /** Flat list for badge lookups and legacy use */
-export const centerNav = centerNavGroups.flatMap((group) => group.items);
+export const centerNav = centerNavGroups.flatMap((group) =>
+  group.items.map((item) => ({
+    ...item,
+    live: item.live ?? isCenterLiveRoute(item.href),
+  })),
+);

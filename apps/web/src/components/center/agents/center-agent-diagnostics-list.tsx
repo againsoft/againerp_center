@@ -11,53 +11,46 @@ import {
 } from "@/components/center/agents/center-agent-diagnostics-toolbar";
 import { Button } from "@/components/ui/button";
 import {
-  centerAgentDiagnostics,
   filterCenterAgentDiagnostics,
-  getCenterAgentDiagnostic,
   type CenterAgentDiagnostic,
 } from "@/lib/mock-data/center";
 
 const defaultFilters: CenterAgentDiagnosticFilters = {
   search: "",
   status: "all",
-  clientId: "",
 };
 
-export function CenterAgentDiagnosticsList() {
-  const searchParams = useSearchParams();
-  const clientParam = searchParams.get("client") ?? "";
-  const diagnosticParam = searchParams.get("diagnostic");
+type Props = {
+  diagnostics: CenterAgentDiagnostic[];
+  getDiagnostic: (id: string) => CenterAgentDiagnostic | undefined;
+};
 
-  const [filters, setFilters] = useState<CenterAgentDiagnosticFilters>({
-    ...defaultFilters,
-    clientId: clientParam,
-  });
+export function CenterAgentDiagnosticsList({ diagnostics, getDiagnostic }: Props) {
+  const searchParams = useSearchParams();
+  const diagnosticParam = searchParams.get("diagnostic");
+  const clientParam = searchParams.get("client");
+
+  const [filters, setFilters] = useState<CenterAgentDiagnosticFilters>(defaultFilters);
   const [selected, setSelected] = useState<CenterAgentDiagnostic | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const filtered = useMemo(() => {
-    const base = filterCenterAgentDiagnostics(centerAgentDiagnostics, filters);
-    if (!filters.clientId) return base;
-    return base.filter((d) => d.clientId === filters.clientId);
-  }, [filters]);
-
-  useEffect(() => {
-    if (clientParam) {
-      setFilters((prev) => ({ ...prev, clientId: clientParam }));
-    }
-  }, [clientParam]);
+    const base = filterCenterAgentDiagnostics(diagnostics, filters);
+    if (!clientParam) return base;
+    return base.filter((d) => d.clientId === clientParam);
+  }, [diagnostics, filters, clientParam]);
 
   useEffect(() => {
     if (!diagnosticParam) return;
-    const diagnostic = getCenterAgentDiagnostic(diagnosticParam);
-    if (diagnostic) {
-      setSelected(diagnostic);
+    const row = getDiagnostic(diagnosticParam);
+    if (row) {
+      setSelected(row);
       setSheetOpen(true);
     }
-  }, [diagnosticParam]);
+  }, [diagnosticParam, getDiagnostic]);
 
-  function openDiagnostic(diagnostic: CenterAgentDiagnostic) {
-    setSelected(diagnostic);
+  function openDiagnostic(row: CenterAgentDiagnostic) {
+    setSelected(row);
     setSheetOpen(true);
   }
 
@@ -67,16 +60,19 @@ export function CenterAgentDiagnosticsList() {
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        totalCount={centerAgentDiagnostics.length}
+        totalCount={diagnostics.length}
       />
 
       {filtered.length === 0 ? (
         <CenterEmptyState
-          title="No diagnostics match your filters"
+          title={diagnostics.length === 0 ? "No diagnostics yet" : "No diagnostics match your filters"}
+          description={diagnostics.length === 0 ? "Request a bundle from Monitoring or client detail." : undefined}
           action={
-            <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
-              Reset filters
-            </Button>
+            diagnostics.length === 0 ? undefined : (
+              <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
+                Reset filters
+              </Button>
+            )
           }
         />
       ) : (

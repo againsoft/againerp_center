@@ -12,6 +12,12 @@ from app.database import get_db
 from app.deps.auth import get_current_operator
 from app.models.client import Client
 from app.models.operator import Operator
+from app.services.audit_service import log_audit
+from app.services.ai_service import ensure_client_ai_access
+from app.services.backup_service import ensure_backup_policy
+from app.services.license_service import create_agent_token, create_license, create_subscription
+from app.services.module_service import provision_client_modules
+from app.services.update_service import ensure_client_update_state
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 
@@ -62,7 +68,7 @@ def _client_out(c: Client) -> dict:
     }
 
 
-@router.get("/")
+@router.get("")
 def list_clients(
     db: Session = Depends(get_db),
     _: Operator = Depends(get_current_operator),
@@ -71,11 +77,11 @@ def list_clients(
     return [_client_out(c) for c in clients]
 
 
-@router.post("/", status_code=201)
+@router.post("", status_code=201)
 def create_client(
     body: ClientCreate,
     db: Session = Depends(get_db),
-    _: Operator = Depends(get_current_operator),
+    op: Operator = Depends(get_current_operator),
 ) -> dict:
     if db.query(Client).filter(Client.slug == body.slug).first():
         raise HTTPException(status_code=409, detail=f"Slug '{body.slug}' already exists")
@@ -87,7 +93,27 @@ def create_client(
     db.add(client)
     db.commit()
     db.refresh(client)
-    return _client_out(client)
+
+    create_subscription(db, client_id=client.id, plan=body.plan)
+    create_license(db, client_id=client.id, plan=body.plan)
+    ensure_client_update_state(db, client.id)
+    provision_client_modules(db, client.id, plan=body.plan)
+    ensure_backup_policy(db, client.id, body.plan)
+    ensure_client_ai_access(db, client.id, plan=body.plan)
+    _, agent_raw = create_agent_token(db, client_id=client.id, label="initial")
+
+    log_audit(
+        db,
+        action="client.create",
+        operator=op,
+        resource="client",
+        resource_id=client.id,
+        detail=f"slug={body.slug}, plan={body.plan}",
+    )
+
+    out = _client_out(client)
+    out["agent_token"] = agent_raw
+    return out
 
 
 @router.get("/{client_id}")
@@ -107,7 +133,7 @@ def update_client(
     client_id: str,
     body: ClientUpdate,
     db: Session = Depends(get_db),
-    _: Operator = Depends(get_current_operator),
+    op: Operator = Depends(get_current_operator),
 ) -> dict:
     c = db.query(Client).filter(Client.id == client_id).first()
     if not c:
@@ -116,6 +142,7 @@ def update_client(
         setattr(c, field, val)
     db.commit()
     db.refresh(c)
+    log_audit(db, action="client.update", operator=op, resource="client", resource_id=client_id)
     return _client_out(c)
 
 
@@ -123,13 +150,14 @@ def update_client(
 def delete_client(
     client_id: str,
     db: Session = Depends(get_db),
-    _: Operator = Depends(get_current_operator),
+    op: Operator = Depends(get_current_operator),
 ) -> dict:
     c = db.query(Client).filter(Client.id == client_id).first()
     if not c:
         raise HTTPException(status_code=404, detail="Client not found")
     db.delete(c)
     db.commit()
+    log_audit(db, action="client.delete", operator=op, resource="client", resource_id=client_id)
     return {"deleted": True}
 
 

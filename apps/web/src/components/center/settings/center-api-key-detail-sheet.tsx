@@ -11,9 +11,10 @@ type Props = {
   apiKey: CenterApiKey | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onRevoke?: (id: string) => void;
 };
 
-export function CenterApiKeyDetailSheet({ apiKey, open, onOpenChange }: Props) {
+export function CenterApiKeyDetailSheet({ apiKey, open, onOpenChange, onRevoke }: Props) {
   if (!apiKey) return null;
 
   return (
@@ -69,7 +70,13 @@ export function CenterApiKeyDetailSheet({ apiKey, open, onOpenChange }: Props) {
             <KeyRound className="mr-1.5 h-3.5 w-3.5" />
             Rotate key
           </Button>
-          <Button variant="outline" size="sm" className="flex-1" disabled>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            disabled={apiKey.status === "revoked"}
+            onClick={() => onRevoke?.(apiKey.id)}
+          >
             <ShieldOff className="mr-1.5 h-3.5 w-3.5" />
             Revoke
           </Button>

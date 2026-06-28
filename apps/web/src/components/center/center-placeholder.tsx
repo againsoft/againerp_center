@@ -16,6 +16,7 @@ export function CenterPlaceholder({ step, title, description, backHref = "/cente
       <CenterPageHeader
         breadcrumb={`Control Center › ${title}`}
         title={title}
+        preview
         description={description}
       />
       <div className="rounded-lg border border-dashed bg-muted/20 px-6 py-10 text-center">

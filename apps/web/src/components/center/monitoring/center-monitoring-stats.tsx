@@ -1,11 +1,13 @@
 "use client";
 
 import { Activity, AlertTriangle, Clock, Wifi, WifiOff } from "lucide-react";
-import { getCenterMonitoringStats } from "@/lib/mock-data/center";
+import type { MonitoringStats } from "@/lib/adapters/center-monitoring-adapter";
 
-export function CenterMonitoringStats() {
-  const stats = getCenterMonitoringStats();
+type Props = {
+  stats: MonitoringStats;
+};
 
+export function CenterMonitoringStats({ stats }: Props) {
   const cards = [
     {
       label: "Agents online",
@@ -29,9 +31,9 @@ export function CenterMonitoringStats() {
       tone: "text-red-600",
     },
     {
-      label: "Avg API p95",
-      value: `${stats.avgLatency}ms`,
-      sub: `${stats.activeAlerts} active alert${stats.activeAlerts !== 1 ? "s" : ""}`,
+      label: "Active alerts",
+      value: stats.activeAlerts,
+      sub: stats.avgLatency > 0 ? `avg p95 ${stats.avgLatency}ms` : "from heartbeat rules",
       icon: Activity,
       tone: "text-violet-600",
     },

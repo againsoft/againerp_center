@@ -8,14 +8,15 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   centerAgentStatusLabel,
   centerDbStatusColors,
-  getCenterAgentMetricSeries,
   type CenterAgentHeartbeat,
+  type CenterAgentMetricPoint,
 } from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 import { CenterMonitoringMetricsChart } from "@/components/center/monitoring/center-monitoring-metrics-chart";
 
 type Props = {
   heartbeat: CenterAgentHeartbeat | null;
+  metricSeries?: CenterAgentMetricPoint[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -57,11 +58,15 @@ function MetricRow({
   );
 }
 
-export function CenterMonitoringDetailSheet({ heartbeat: hb, open, onOpenChange }: Props) {
+export function CenterMonitoringDetailSheet({
+  heartbeat: hb,
+  metricSeries = [],
+  open,
+  onOpenChange,
+}: Props) {
   if (!hb) return null;
 
-  const offline = hb.agentStatus === "offline";
-  const metricSeries = getCenterAgentMetricSeries(hb.clientId);
+  const offline = hb.agentStatus === "offline" || hb.agentStatus === "pending";
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -126,8 +131,8 @@ export function CenterMonitoringDetailSheet({ heartbeat: hb, open, onOpenChange 
 
               <CenterMonitoringMetricsChart
                 series={metricSeries}
-                title="24-hour trend"
-                subtitle="CPU and RAM from hourly heartbeat samples"
+                title="Recent heartbeat trend"
+                subtitle="CPU and RAM from live Edge Agent samples"
                 height={180}
               />
 
