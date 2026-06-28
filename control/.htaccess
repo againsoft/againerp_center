@@ -1,0 +1,29 @@
+# AgainERP Control Center — Documentation & Project Root
+# Apache (XAMPP) configuration for /control/
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /control/
+
+    # Default documentation entry
+    RewriteRule ^$ ControlCenter/MASTER_INDEX.md [L]
+
+    # Block access to hidden and backup files
+    RewriteRule (^|/)\. - [F,L]
+    RewriteRule \.(bak|swp|tmp)$ - [F,L]
+</IfModule>
+
+# Disable directory listing
+Options -Indexes
+
+# Security headers (when mod_headers is available)
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Deny execution of scripts in documentation tree
+<FilesMatch "\.(php|py|sh|exe|bat)$">
+    Require all denied
+</FilesMatch>
