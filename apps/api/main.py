@@ -86,18 +86,46 @@ def _bootstrap() -> None:
         from app.models.operator import Operator
         from app.deps.auth import hash_password
 
+        is_prod = settings.app_env == "production"
+
         if db.query(Operator).count() == 0:
-            db.add(Operator(
-                id="op_super_admin",
-                email="admin@againerp.com",
-                username="superadmin",
-                hashed_password=hash_password("Admin@1234"),
-                full_name="Super Admin",
-                role="super_admin",
-                is_active=True,
-            ))
-            db.commit()
-            print("[Center] Default super_admin created: admin@againerp.com / Admin@1234")
+            if is_prod:
+                if settings.initial_admin_email and settings.initial_admin_password:
+                    pwd = settings.initial_admin_password
+                    if len(pwd.encode("utf-8")) > 72:
+                        print("[Center] ERROR: INITIAL_ADMIN_PASSWORD exceeds 72 bytes — use a shorter password")
+                    else:
+                        try:
+                            db.add(Operator(
+                                id="op_super_admin",
+                                email=settings.initial_admin_email,
+                                username="superadmin",
+                                hashed_password=hash_password(pwd),
+                                full_name="Super Admin",
+                                role="super_admin",
+                                is_active=True,
+                            ))
+                            db.commit()
+                            print(f"[Center] Initial admin created: {settings.initial_admin_email}")
+                        except ValueError as e:
+                            print(f"[Center] ERROR: Could not create admin — {e}")
+                else:
+                    print("[Center] WARNING: No operators — set INITIAL_ADMIN_EMAIL and INITIAL_ADMIN_PASSWORD")
+            else:
+                db.add(Operator(
+                    id="op_super_admin",
+                    email="admin@againerp.com",
+                    username="superadmin",
+                    hashed_password=hash_password("Admin@1234"),
+                    full_name="Super Admin",
+                    role="super_admin",
+                    is_active=True,
+                ))
+                db.commit()
+                print("[Center] Default super_admin created: admin@againerp.com / Admin@1234")
+
+        if is_prod and not settings.seed_demo_data:
+            return
 
         from app.models.registration import Registration
         import json

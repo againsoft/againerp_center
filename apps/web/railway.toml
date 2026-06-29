@@ -1,0 +1,13 @@
+# Railway service — Root Directory must be: apps/web
+# Set API_PROXY_TARGET before build. Docs: deploy/railway/README.md
+
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/login"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5
+numReplicas = 1

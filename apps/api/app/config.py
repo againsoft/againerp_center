@@ -1,4 +1,6 @@
 from functools import lru_cache
+
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -13,6 +15,16 @@ class Settings(BaseSettings):
     mfa_enforce: bool = False
     stripe_webhook_secret: str = ""
     stripe_api_key: str = ""
+    seed_demo_data: bool = False
+    initial_admin_email: str = ""
+    initial_admin_password: str = ""
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def normalize_database_url(cls, value: str) -> str:
+        if isinstance(value, str) and value.startswith("postgres://"):
+            return value.replace("postgres://", "postgresql://", 1)
+        return value
 
     class Config:
         env_file = ".env"

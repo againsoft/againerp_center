@@ -55,6 +55,33 @@ Verify at **Agents → Fleet heartbeat** or **Monitoring**.
 ./scripts/health_check.sh
 ```
 
+### Docker production stack
+
+```bash
+docker compose -f deploy/docker/docker-compose.prod.yml up -d --build
+```
+
+| Service | URL |
+|---------|-----|
+| Web | http://localhost:3000 |
+| API | http://localhost:8001/docs |
+
+### Railway deployment
+
+Full guide: [`deploy/railway/README.md`](./deploy/railway/README.md)
+
+Quick summary — 3 Railway resources (PostgreSQL + API + Web):
+
+| Service | Root Directory | Key env vars |
+|---------|----------------|--------------|
+| PostgreSQL | Railway plugin | — |
+| API | `apps/api` | `DATABASE_URL`, `SECRET_KEY`, `CORS_ORIGINS`, `INITIAL_ADMIN_*` |
+| Web | `apps/web` | `API_PROXY_TARGET` = public API URL |
+
+Deploy API first → get URL → set `API_PROXY_TARGET` on Web → redeploy Web.
+
+Architecture audit: [`docs/AUDIT_REPORT.md`](./docs/AUDIT_REPORT.md)
+
 ## Phase Status
 
 | Phase | Goal | Status |

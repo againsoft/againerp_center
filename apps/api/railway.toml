@@ -1,0 +1,13 @@
+# Railway service — Root Directory must be: apps/api
+# Docs: deploy/railway/README.md
+
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5
+numReplicas = 1
