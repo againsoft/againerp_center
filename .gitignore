@@ -40,6 +40,10 @@ yarn-error.log*
 *.db
 *.sqlite3
 
+# Database backups (keep directory, ignore dumps)
+backups/db/*
+!backups/db/.gitkeep
+
 # Edge Agent local state
 .agent-data/
 
