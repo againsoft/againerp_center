@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://againerp.com/schemas/contracts/conversation-response.v1.json",
+  "title": "ConversationResponse",
+  "description": "Center → Runtime conversation response (contract v1.0.0)",
+  "type": "object",
+  "required": ["contractVersion"],
+  "properties": {
+    "contractVersion": { "type": "string", "const": "1.0.0" },
+    "conversationId": { "type": "string" },
+    "intent": { "type": "object", "additionalProperties": true },
+    "selections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stepId", "productId", "reason"],
+        "properties": {
+          "stepId": { "type": "string" },
+          "productId": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "explanation": { "type": "string" },
+    "upgrades": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stepId", "upgradeProductId", "benefit"],
+        "properties": {
+          "stepId": { "type": "string" },
+          "upgradeProductId": { "type": "string" },
+          "benefit": { "type": "string" }
+        }
+      }
+    },
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stepId", "productId", "tradeoff"],
+        "properties": {
+          "stepId": { "type": "string" },
+          "productId": { "type": "string" },
+          "tradeoff": { "type": "string" }
+        }
+      }
+    },
+    "followUpQuestion": { "type": "string" },
+    "providerId": { "type": "string" },
+    "modelId": { "type": "string" },
+    "tokensUsed": { "type": "number" }
+  },
+  "additionalProperties": false
+}

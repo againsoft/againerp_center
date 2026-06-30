@@ -8,15 +8,14 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   centerAgentStatusLabel,
   centerDbStatusColors,
+  getCenterAgentMetricSeries,
   type CenterAgentHeartbeat,
-  type CenterAgentMetricPoint,
 } from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 import { CenterMonitoringMetricsChart } from "@/components/center/monitoring/center-monitoring-metrics-chart";
 
 type Props = {
   heartbeat: CenterAgentHeartbeat | null;
-  metricSeries?: CenterAgentMetricPoint[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -58,15 +57,11 @@ function MetricRow({
   );
 }
 
-export function CenterMonitoringDetailSheet({
-  heartbeat: hb,
-  metricSeries = [],
-  open,
-  onOpenChange,
-}: Props) {
+export function CenterMonitoringDetailSheet({ heartbeat: hb, open, onOpenChange }: Props) {
   if (!hb) return null;
 
-  const offline = hb.agentStatus === "offline" || hb.agentStatus === "pending";
+  const offline = hb.agentStatus === "offline";
+  const metricSeries = getCenterAgentMetricSeries(hb.clientId);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -101,7 +96,7 @@ export function CenterMonitoringDetailSheet({
               <Row label="ERP version" value={hb.erpVersion} mono />
             </dl>
             <Button asChild variant="link" size="sm" className="mt-2 h-auto p-0 text-violet-600">
-              <Link href={`/center/clients/${hb.clientId}?tab=agent`}>Open client agent tab</Link>
+              <Link href={`/clients/${hb.clientId}?tab=agent`}>Open client agent tab</Link>
             </Button>
           </div>
 
@@ -131,8 +126,8 @@ export function CenterMonitoringDetailSheet({
 
               <CenterMonitoringMetricsChart
                 series={metricSeries}
-                title="Recent heartbeat trend"
-                subtitle="CPU and RAM from live Edge Agent samples"
+                title="24-hour trend"
+                subtitle="CPU and RAM from hourly heartbeat samples"
                 height={180}
               />
 
@@ -163,7 +158,7 @@ export function CenterMonitoringDetailSheet({
 
         <div className="flex flex-wrap gap-2 border-t p-4">
           <Button asChild variant="outline" size="sm" className="flex-1">
-            <Link href={`/center/agents?tab=diagnostics&client=${hb.clientId}`}>
+            <Link href={`/agents?tab=diagnostics&client=${hb.clientId}`}>
               <Download className="mr-1.5 h-3.5 w-3.5" />
               Request diagnostics
             </Link>

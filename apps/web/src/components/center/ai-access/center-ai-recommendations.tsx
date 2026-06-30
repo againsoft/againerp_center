@@ -4,13 +4,13 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  centerAiRecommendations,
   centerPlatformAiAgentLabels,
   type CenterAiRecommendation,
 } from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  recommendations: CenterAiRecommendation[];
   onViewClient?: (clientId: string) => void;
 };
 
@@ -20,8 +20,8 @@ const severityStyles = {
   action: "border-violet-200 bg-violet-50 dark:border-violet-900 dark:bg-violet-950/30",
 };
 
-export function CenterAiRecommendations({ recommendations, onViewClient }: Props) {
-  const active = recommendations.filter((r) => !r.dismissed);
+export function CenterAiRecommendations({ onViewClient }: Props) {
+  const active = centerAiRecommendations.filter((r) => !r.dismissed);
 
   if (active.length === 0) {
     return (
@@ -67,7 +67,7 @@ function RecommendationRow({
               </Button>
             ) : (
               <Button asChild variant="outline" size="sm" className="h-8">
-                <Link href={`/center/ai-access?client=${rec.clientId}`}>View client</Link>
+                <Link href={`/ai-access?client=${rec.clientId}`}>View client</Link>
               </Button>
             )
           ) : null}

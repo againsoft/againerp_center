@@ -9,28 +9,28 @@ import {
   type CenterLicenseFilters,
 } from "@/components/center/licenses/center-licenses-toolbar";
 import { Button } from "@/components/ui/button";
-import { filterCenterLicenses, type CenterLicense } from "@/lib/mock-data/center";
+import {
+  centerLicenses,
+  filterCenterLicenses,
+  type CenterLicense,
+} from "@/lib/mock-data/center";
 
 const defaultFilters: CenterLicenseFilters = {
   search: "",
   status: "all",
 };
 
-type Props = {
-  licenses: CenterLicense[];
-};
-
-export function CenterLicensesList({ licenses }: Props) {
+export function CenterLicensesList() {
   const [filters, setFilters] = useState<CenterLicenseFilters>(defaultFilters);
   const [selected, setSelected] = useState<CenterLicense | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const filtered = useMemo(
-    () => filterCenterLicenses(licenses, filters),
-    [licenses, filters],
+    () => filterCenterLicenses(centerLicenses, filters),
+    [filters],
   );
 
-  const graceCount = licenses.filter((l) => l.status === "grace").length;
+  const graceCount = centerLicenses.filter((l) => l.status === "grace").length;
 
   function openLicense(lic: CenterLicense) {
     setSelected(lic);
@@ -50,23 +50,16 @@ export function CenterLicensesList({ licenses }: Props) {
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        licenses={licenses}
+        licenses={centerLicenses}
       />
 
       {filtered.length === 0 ? (
         <CenterEmptyState
-          title={licenses.length === 0 ? "No licenses yet" : "No licenses match your filters"}
-          description={
-            licenses.length === 0
-              ? "Licenses are issued automatically when you add a client."
-              : "Try clearing filters or search with a different term."
-          }
+          title="No licenses match your filters"
           action={
-            licenses.length === 0 ? undefined : (
-              <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
-                Reset filters
-              </Button>
-            )
+            <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
+              Reset filters
+            </Button>
           }
         />
       ) : (

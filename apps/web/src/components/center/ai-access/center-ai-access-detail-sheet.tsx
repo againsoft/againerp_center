@@ -110,7 +110,7 @@ export function CenterAiAccessDetailSheet({ access, open, onOpenChange }: Props)
           </div>
 
           <Button asChild variant="link" size="sm" className="h-auto p-0 text-violet-600">
-            <Link href={`/center/clients/${access.clientId}?tab=modules`}>
+            <Link href={`/clients/${access.clientId}?tab=modules`}>
               Open client modules & AI tab
             </Link>
           </Button>

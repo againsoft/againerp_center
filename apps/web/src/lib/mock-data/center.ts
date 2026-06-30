@@ -1156,7 +1156,7 @@ export const centerDashboardAlerts: CenterDashboardAlert[] = [
     severity: "critical",
     title: "StyleHub Fashion suspended",
     detail: "Payment overdue — client in read-only mode",
-    href: "/center/clients/cl-004",
+    href: "/clients/cl-004",
     time: "1d ago",
   },
   {
@@ -1164,7 +1164,7 @@ export const centerDashboardAlerts: CenterDashboardAlert[] = [
     severity: "warning",
     title: "BuildPro Hardware agent degraded",
     detail: "Heartbeat latency 820ms — investigate infrastructure",
-    href: "/center/monitoring?client=cl-005",
+    href: "/monitoring?client=cl-005",
     time: "1d ago",
   },
   {
@@ -1172,7 +1172,7 @@ export const centerDashboardAlerts: CenterDashboardAlert[] = [
     severity: "warning",
     title: "2 registrations awaiting review",
     detail: "Approve or reject before onboarding",
-    href: "/center/registrations",
+    href: "/registrations",
     time: "5h ago",
   },
   {
@@ -1180,7 +1180,7 @@ export const centerDashboardAlerts: CenterDashboardAlert[] = [
     severity: "info",
     title: "FreshMart trial ends in 12 days",
     detail: "Business plan trial — renewal reminder scheduled",
-    href: "/center/clients/cl-003",
+    href: "/clients/cl-003",
     time: "Today",
   },
 ];
@@ -1192,7 +1192,7 @@ export const centerPlatformNotifications: CenterPlatformNotification[] = [
     severity: "critical",
     title: "StyleHub Fashion suspended",
     body: "Payment overdue — client in read-only mode until invoice cleared.",
-    href: "/center/clients/cl-004",
+    href: "/clients/cl-004",
     time: "1d ago",
   },
   {
@@ -1201,7 +1201,7 @@ export const centerPlatformNotifications: CenterPlatformNotification[] = [
     severity: "warning",
     title: "BuildPro agent degraded",
     body: "Heartbeat latency 820ms and queue backlog — review monitoring.",
-    href: "/center/monitoring?client=cl-005",
+    href: "/monitoring?client=cl-005",
     time: "1d ago",
   },
   {
@@ -1210,7 +1210,7 @@ export const centerPlatformNotifications: CenterPlatformNotification[] = [
     severity: "warning",
     title: "2 registrations awaiting review",
     body: "FreshMart Grocery and Nova Electronics pending operator approval.",
-    href: "/center/registrations",
+    href: "/registrations",
     time: "5h ago",
   },
   {
@@ -1219,7 +1219,7 @@ export const centerPlatformNotifications: CenterPlatformNotification[] = [
     severity: "info",
     title: "2026.6.1 rollout at 78%",
     body: "Tier-1 stage progressing — zero rollbacks reported so far.",
-    href: "/center/updates",
+    href: "/updates",
     time: "3h ago",
   },
   {
@@ -1228,7 +1228,7 @@ export const centerPlatformNotifications: CenterPlatformNotification[] = [
     severity: "critical",
     title: "StyleHub agent offline",
     body: "No heartbeat for 18h — 3 commands buffered in sync queue.",
-    href: "/center/agents?tab=sync&client=cl-004",
+    href: "/agents?tab=sync&client=cl-004",
     time: "1d ago",
   },
   {
@@ -1237,7 +1237,7 @@ export const centerPlatformNotifications: CenterPlatformNotification[] = [
     severity: "warning",
     title: "API key rotation reminder",
     body: "Partner integration key expires in 7 days — rotate before cutoff.",
-    href: "/center/settings/api-keys",
+    href: "/settings/api-keys",
     time: "Today",
   },
   {
@@ -1246,7 +1246,7 @@ export const centerPlatformNotifications: CenterPlatformNotification[] = [
     severity: "info",
     title: "UrbanWear invoice due soon",
     body: "INV-2026-06-0041 due in 3 days — enterprise plan renewal.",
-    href: "/center/billing",
+    href: "/billing",
     time: "Today",
   },
   {
@@ -1255,7 +1255,7 @@ export const centerPlatformNotifications: CenterPlatformNotification[] = [
     severity: "info",
     title: "Chief AI briefing ready",
     body: "Daily fleet synthesis available on platform dashboard.",
-    href: "/center",
+    href: "/",
     time: "Today",
   },
 ];
@@ -2201,35 +2201,35 @@ export const centerChiefAiBriefing: CenterChiefAiBriefing = {
       id: "brief-1",
       source: "monitoring",
       text: "BuildPro Hardware agent heartbeat latency elevated (820ms). Health AI suggests disk I/O pressure — review monitoring before next update window.",
-      href: "/center/monitoring?client=cl-005",
+      href: "/monitoring?client=cl-005",
       hrefLabel: "View agent",
     },
     {
       id: "brief-2",
       source: "license",
       text: "StyleHub Fashion remains suspended for overdue payment. License AI recommends follow-up before grace expires in 3 days.",
-      href: "/center/clients/cl-004",
+      href: "/clients/cl-004",
       hrefLabel: "Client detail",
     },
     {
       id: "brief-3",
       source: "recommendation",
       text: "2 registrations await review — FreshMart Grocery requested AI module on trial conversion. Prioritize onboarding queue.",
-      href: "/center/registrations",
+      href: "/registrations",
       hrefLabel: "Review queue",
     },
     {
       id: "brief-4",
       source: "health",
       text: "UrbanWear Retail at 93% AI credit usage. No agent degradation — consider proactive credit boost or plan upgrade.",
-      href: "/center/ai-access?client=cl-001",
+      href: "/ai-access?client=cl-001",
       hrefLabel: "AI access",
     },
     {
       id: "brief-5",
       source: "update",
       text: "2026.6.1 rollout at 78% complete with zero rollbacks. Update AI recommends promoting TechZone to beta channel after canary validation.",
-      href: "/center/updates",
+      href: "/updates",
       hrefLabel: "Update manager",
     },
   ],

@@ -55,7 +55,7 @@ export function CenterAgentCommandsGrid({ commands, onView }: Props) {
               <TableRow key={cmd.id}>
                 <TableCell>
                   <Link
-                    href={`/center/clients/${cmd.clientId}`}
+                    href={`/clients/${cmd.clientId}`}
                     className="text-sm hover:text-violet-700 dark:hover:text-violet-300"
                   >
                     {cmd.businessName}

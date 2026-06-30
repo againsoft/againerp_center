@@ -131,7 +131,7 @@ export function deriveDashboardAlerts(
       severity: "warning",
       title: `${pendingRegistrations} registration${pendingRegistrations > 1 ? "s" : ""} awaiting review`,
       detail: "Approve signups to provision clients and issue agent tokens",
-      href: "/center/registrations",
+      href: "/registrations",
       time: "Now",
     });
   }
@@ -144,7 +144,7 @@ export function deriveDashboardAlerts(
         severity: "critical",
         title: `${name} — critical health`,
         detail: `CPU/memory/disk thresholds exceeded on ${server.hostname ?? server.instance_id}`,
-        href: `/center/clients/${server.client_id}?tab=agent`,
+        href: `/clients/${server.client_id}?tab=agent`,
         time: relativeTime(server.last_heartbeat_at),
       });
     } else if (!server.is_online && server.last_heartbeat_at) {
@@ -153,7 +153,7 @@ export function deriveDashboardAlerts(
         severity: "warning",
         title: `${name} agent offline`,
         detail: `No heartbeat in 5+ minutes — last seen ${relativeTime(server.last_heartbeat_at)}`,
-        href: `/center/clients/${server.client_id}?tab=agent`,
+        href: `/clients/${server.client_id}?tab=agent`,
         time: relativeTime(server.last_heartbeat_at),
       });
     } else if (server.health_status === "degraded") {
@@ -162,7 +162,7 @@ export function deriveDashboardAlerts(
         severity: "warning",
         title: `${name} agent degraded`,
         detail: "Resource usage elevated — review monitoring",
-        href: `/center/monitoring?client=${server.client_id}`,
+        href: `/monitoring?client=${server.client_id}`,
         time: relativeTime(server.last_heartbeat_at),
       });
     }
@@ -177,7 +177,7 @@ export function deriveDashboardAlerts(
       severity: "info",
       title: `${clientsWithoutAgent.length} client${clientsWithoutAgent.length > 1 ? "s" : ""} without agent`,
       detail: "Start Edge Agent with token from client creation",
-      href: "/center/agents?tab=fleet",
+      href: "/agents?tab=fleet",
       time: "Now",
     });
   }
@@ -195,7 +195,7 @@ export function buildFleetHealthItems(
       businessName: c.name,
       status: mapClientStatus(c),
       agentStatus: agentStatusForClient(c.id, servers),
-      href: `/center/clients/${c.id}?tab=agent`,
+      href: `/clients/${c.id}?tab=agent`,
     }))
     .sort((a, b) => {
       const order: Record<CenterDbStatus, number> = {

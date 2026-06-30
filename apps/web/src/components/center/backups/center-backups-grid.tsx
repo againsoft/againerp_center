@@ -49,7 +49,7 @@ export function CenterBackupsGrid({ statuses, onView }: Props) {
               <TableRow key={s.clientId}>
                 <TableCell>
                   <Link
-                    href={`/center/clients/${s.clientId}?tab=agent`}
+                    href={`/clients/${s.clientId}?tab=agent`}
                     className="font-medium hover:text-violet-700 dark:hover:text-violet-300"
                   >
                     {s.businessName}

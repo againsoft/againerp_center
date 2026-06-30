@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  centerClientSubscriptions,
   centerSubscriptionStatusColors,
   formatCenterPlan,
   type CenterClientSubscription,
@@ -18,10 +19,12 @@ import {
 import { cn, formatCurrency } from "@/lib/utils";
 
 type Props = {
-  subscriptions: CenterClientSubscription[];
+  subscriptions?: CenterClientSubscription[];
 };
 
-export function CenterFleetSubscriptionsTable({ subscriptions }: Props) {
+export function CenterFleetSubscriptionsTable({
+  subscriptions = centerClientSubscriptions,
+}: Props) {
   return (
     <div className="rounded-lg border bg-card">
       <div className="border-b px-4 py-3">
@@ -48,7 +51,7 @@ export function CenterFleetSubscriptionsTable({ subscriptions }: Props) {
             <TableRow key={sub.id}>
               <TableCell>
                 <Link
-                  href={`/center/clients/${sub.clientId}?tab=subscription`}
+                  href={`/clients/${sub.clientId}?tab=subscription`}
                   className="font-medium hover:text-violet-700 dark:hover:text-violet-300"
                 >
                   {sub.businessName}

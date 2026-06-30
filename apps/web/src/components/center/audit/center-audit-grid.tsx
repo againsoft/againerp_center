@@ -64,7 +64,7 @@ export function CenterAuditGrid({ logs, onView }: Props) {
                 <TableCell className="text-sm">
                   {log.clientId ? (
                     <Link
-                      href={`/center/clients/${log.clientId}`}
+                      href={`/clients/${log.clientId}`}
                       className="hover:text-violet-700 dark:hover:text-violet-300"
                     >
                       {log.clientName}

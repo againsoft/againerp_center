@@ -1,7 +1,6 @@
 "use client";
 
 import type { ElementType } from "react";
-import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -13,7 +12,6 @@ import {
   ExternalLink,
   KeyRound,
   ListTodo,
-  Loader2,
   LogIn,
   Package,
   PauseCircle,
@@ -36,16 +34,7 @@ import {
   getCenterAgentCommandsForClient,
   getCenterAgentSyncQueuesForClient,
   type CenterClient,
-  type CenterClientSubscription,
-  type CenterLicense,
 } from "@/lib/mock-data/center";
-import { apiLicensesToCenterLicenses } from "@/lib/adapters/center-license-adapter";
-import { apiSubscriptionsToCenterSubscriptions } from "@/lib/adapters/center-subscription-adapter";
-import { fetchClients } from "@/lib/api/clients";
-import { fetchClientModules, updateClientModules, type ApiClientModuleState } from "@/lib/api/modules";
-import { fetchLicenses } from "@/lib/api/licenses";
-import { fetchServers, type ApiServer } from "@/lib/api/servers";
-import { fetchSubscriptions } from "@/lib/api/subscriptions";
 import { cn, formatCurrency } from "@/lib/utils";
 
 type DetailTab = "overview" | "modules" | "agent" | "subscription";
@@ -83,7 +72,6 @@ export function CenterClientDetail({ client }: Props) {
       <CenterPageHeader
         breadcrumb={`Control Center › Clients › ${client.businessName}`}
         title={client.businessName}
-        live
         description={`${client.slug} · ${client.country} · ${formatCenterPlan(client.plan)} plan`}
         actions={
           <>
@@ -100,7 +88,7 @@ export function CenterClientDetail({ client }: Props) {
               </a>
             </Button>
             <Button asChild variant="outline" size="sm">
-              <Link href={`/center/monitoring?client=${client.id}`}>
+              <Link href={`/monitoring?client=${client.id}`}>
                 <Activity className="mr-1.5 h-3.5 w-3.5" />
                 Agent health
               </Link>
@@ -199,7 +187,7 @@ function OverviewTab({
             </div>
           )}
           <Button asChild variant="link" size="sm" className="mt-2 h-auto p-0 text-violet-600">
-            <Link href="/center/audit">Full audit log</Link>
+            <Link href="/audit">Full audit log</Link>
           </Button>
         </div>
       </div>
@@ -229,71 +217,6 @@ function OverviewTab({
 }
 
 function ModulesTab({ client, aiUsagePct }: { client: CenterClient; aiUsagePct: number }) {
-  const [moduleStates, setModuleStates] = useState<ApiClientModuleState[]>([]);
-  const [draftEnabled, setDraftEnabled] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [saveMessage, setSaveMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const states = await fetchClientModules(client.id);
-        if (!cancelled) {
-          setModuleStates(states);
-          setDraftEnabled(new Set(states.filter((s) => s.enabled).map((s) => s.code)));
-        }
-      } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load modules");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [client.id]);
-
-  const dirty = useMemo(() => {
-    const current = new Set(moduleStates.filter((s) => s.enabled).map((s) => s.code));
-    if (current.size !== draftEnabled.size) return true;
-    for (const code of draftEnabled) {
-      if (!current.has(code)) return true;
-    }
-    return false;
-  }, [moduleStates, draftEnabled]);
-
-  function toggleModule(code: string, next: boolean) {
-    setDraftEnabled((prev) => {
-      const copy = new Set(prev);
-      if (next) copy.add(code);
-      else copy.delete(code);
-      return copy;
-    });
-    setSaveMessage(null);
-  }
-
-  async function handleSave() {
-    setSaving(true);
-    setError(null);
-    setSaveMessage(null);
-    try {
-      const result = await updateClientModules(client.id, [...draftEnabled]);
-      setDraftEnabled(new Set(result.enabled_modules));
-      const states = await fetchClientModules(client.id);
-      setModuleStates(states);
-      setSaveMessage("Module entitlements saved — Edge Agent sync queued.");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to save modules");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  const displayModules: ApiClientModuleState[] = moduleStates;
-
   return (
     <div className="grid gap-3 lg:grid-cols-2">
       <div className="rounded-lg border bg-card p-4">
@@ -301,69 +224,32 @@ function ModulesTab({ client, aiUsagePct }: { client: CenterClient; aiUsagePct: 
           <Package className="h-4 w-4 text-violet-600" />
           Module entitlements
         </h2>
-
-        {error ? (
-          <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs dark:border-red-900 dark:bg-red-950/30">
-            {error}
-          </div>
-        ) : null}
-        {saveMessage ? (
-          <div className="mb-3 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs dark:border-emerald-900 dark:bg-emerald-950/30">
-            {saveMessage}
-          </div>
-        ) : null}
-
-        {loading ? (
-          <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Loading module entitlements…
-          </div>
-        ) : (
-          <div className="grid gap-2 sm:grid-cols-2">
-            {displayModules.map((mod) => {
-              const code = mod.code;
-              const enabled = draftEnabled.has(code);
-              const locked = mod.is_core || (enabled && !mod.can_disable);
-              return (
-                <div
-                  key={code}
-                  className={cn(
-                    "flex items-center justify-between rounded-md border px-3 py-2",
-                    enabled
-                      ? "border-violet-200 bg-violet-50/50 dark:border-violet-900 dark:bg-violet-950/20"
-                      : "opacity-80",
-                  )}
-                >
-                  <div className="min-w-0 pr-2">
-                    <p className="text-sm font-medium">{mod.label}</p>
-                    <p className="text-[10px] text-muted-foreground capitalize">{mod.tier}</p>
-                    {mod.blocked_reason && !enabled ? (
-                      <p className="text-[10px] text-amber-700 dark:text-amber-300">{mod.blocked_reason}</p>
-                    ) : null}
-                  </div>
-                  <Switch
-                    checked={enabled}
-                    disabled={locked && enabled}
-                    onCheckedChange={(next) => toggleModule(code, next)}
-                    aria-label={`${mod.label} module`}
-                  />
+        <div className="grid gap-2 sm:grid-cols-2">
+          {centerModules.map((mod) => {
+            const enabled = client.modules.includes(mod.id);
+            return (
+              <div
+                key={mod.id}
+                className={cn(
+                  "flex items-center justify-between rounded-md border px-3 py-2",
+                  enabled
+                    ? "border-violet-200 bg-violet-50/50 dark:border-violet-900 dark:bg-violet-950/20"
+                    : "opacity-60",
+                )}
+              >
+                <div>
+                  <p className="text-sm font-medium">{mod.label}</p>
+                  <p className="text-[10px] text-muted-foreground">{mod.tier}</p>
                 </div>
-              );
-            })}
-          </div>
-        )}
-
+                <Switch checked={enabled} disabled aria-label={`${mod.label} module`} />
+              </div>
+            );
+          })}
+        </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          Toggles sync to Edge Agent on save. Core modules (catalog, orders, customers) cannot be disabled.
+          Toggles sync to Edge Agent on save (prototype — disabled).
         </p>
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-2"
-          disabled={!dirty || saving || loading}
-          onClick={() => void handleSave()}
-        >
-          {saving ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
+        <Button variant="outline" size="sm" className="mt-2" disabled>
           Save module changes
         </Button>
       </div>
@@ -401,7 +287,7 @@ function ModulesTab({ client, aiUsagePct }: { client: CenterClient; aiUsagePct: 
           </div>
         ) : null}
         <Button asChild variant="outline" size="sm" className="mt-3">
-          <Link href="/center/ai-access">Fleet AI settings</Link>
+          <Link href="/ai-access">Fleet AI settings</Link>
         </Button>
       </div>
     </div>
@@ -409,39 +295,9 @@ function ModulesTab({ client, aiUsagePct }: { client: CenterClient; aiUsagePct: 
 }
 
 function AgentTab({ client }: { client: CenterClient }) {
-  const [server, setServer] = useState<ApiServer | null>(null);
-  const [loading, setLoading] = useState(true);
   const clientCommands = getCenterAgentCommandsForClient(client.id).slice(0, 4);
   const clientQueues = getCenterAgentSyncQueuesForClient(client.id);
   const pendingQueueItems = clientQueues.reduce((sum, q) => sum + q.pendingCount, 0);
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const servers = await fetchServers(client.id);
-        if (!cancelled) setServer(servers[0] ?? null);
-      } catch {
-        if (!cancelled) setServer(null);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [client.id]);
-
-  const agentOnline = server?.is_online ?? false;
-  const lastHeartbeat = server?.last_heartbeat_at
-    ? new Date(server.last_heartbeat_at).toLocaleString("en-GB", {
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : client.lastHeartbeat;
-  const agentVersion = server?.agent_version ?? client.agentVersion;
-  const erpVersion = server?.erp_version ?? client.erpVersion;
-  const instanceId = server?.instance_id ?? client.instanceId;
 
   return (
     <div className="grid gap-3 lg:grid-cols-2">
@@ -450,48 +306,36 @@ function AgentTab({ client }: { client: CenterClient }) {
           <Activity className="h-4 w-4 text-violet-600" />
           Edge Agent
         </h2>
-        {loading ? (
-          <p className="text-sm text-muted-foreground">Loading agent status…</p>
-        ) : (
         <dl className="space-y-2 text-sm">
           <Row label="Agent status">
             <Badge
               variant="secondary"
-              className={cn(
-                "capitalize",
-                agentOnline
-                  ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-                  : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
-              )}
+              className={cn("capitalize", centerDbStatusColors[client.dbStatus])}
             >
-              {agentOnline ? "Online" : server ? "Offline" : "Not registered"}
+              {centerAgentStatusLabel[client.dbStatus]}
             </Badge>
           </Row>
-          {server?.health_status ? (
-            <Row label="Health" value={server.health_status} capitalize />
-          ) : null}
-          <Row label="Last heartbeat" value={lastHeartbeat} />
-          <Row label="Agent version" value={agentVersion} mono />
-          <Row label="ERP version" value={erpVersion} mono />
-          <Row label="Instance ID" value={instanceId} mono />
+          <Row label="Last heartbeat" value={client.lastHeartbeat} />
+          <Row label="Agent version" value={client.agentVersion} mono />
+          <Row label="ERP version" value={client.erpVersion} mono />
+          <Row label="Instance ID" value={client.instanceId} mono />
           {pendingQueueItems > 0 ? (
             <Row label="Offline queue" value={`${pendingQueueItems} item(s) buffered`} />
           ) : null}
         </dl>
-        )}
         <p className="mt-3 text-xs text-muted-foreground">
           Health metrics from agent heartbeat — Control Center never connects to client database
           directly.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
-            <Link href={`/center/monitoring?client=${client.id}`}>Open monitoring</Link>
+            <Link href={`/monitoring?client=${client.id}`}>Open monitoring</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link href={`/center/agents?tab=commands&client=${client.id}`}>Command queue</Link>
+            <Link href={`/agents?tab=commands&client=${client.id}`}>Command queue</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link href={`/center/agents?tab=sync&client=${client.id}`}>Sync queues</Link>
+            <Link href={`/agents?tab=sync&client=${client.id}`}>Sync queues</Link>
           </Button>
         </div>
       </div>
@@ -519,7 +363,7 @@ function AgentTab({ client }: { client: CenterClient }) {
           </Row>
         </dl>
         <Button asChild variant="outline" size="sm" className="mt-3">
-          <Link href={`/center/agents?tab=diagnostics&client=${client.id}`}>Diagnostics bundles</Link>
+          <Link href={`/agents?tab=diagnostics&client=${client.id}`}>Diagnostics bundles</Link>
         </Button>
       </div>
 
@@ -549,7 +393,7 @@ function AgentTab({ client }: { client: CenterClient }) {
             ))}
           </div>
           <Button asChild variant="link" size="sm" className="mt-2 h-auto p-0 text-violet-600">
-            <Link href={`/center/agents?tab=commands&client=${client.id}`}>View all commands</Link>
+            <Link href={`/agents?tab=commands&client=${client.id}`}>View all commands</Link>
           </Button>
         </div>
       ) : null}
@@ -558,43 +402,6 @@ function AgentTab({ client }: { client: CenterClient }) {
 }
 
 function SubscriptionTab({ client }: { client: CenterClient }) {
-  const [subscription, setSubscription] = useState<CenterClientSubscription | null>(null);
-  const [license, setLicense] = useState<CenterLicense | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const [subs, lics, clients] = await Promise.all([
-          fetchSubscriptions(client.id),
-          fetchLicenses(client.id),
-          fetchClients(),
-        ]);
-        if (!cancelled) {
-          const mappedSubs = apiSubscriptionsToCenterSubscriptions(subs, clients);
-          const mappedLics = apiLicensesToCenterLicenses(lics, clients);
-          setSubscription(mappedSubs[0] ?? null);
-          setLicense(mappedLics[0] ?? null);
-        }
-      } catch {
-        if (!cancelled) {
-          setSubscription(null);
-          setLicense(null);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [client.id]);
-
-  if (loading) {
-    return (
-      <p className="py-8 text-sm text-muted-foreground">Loading subscription & license…</p>
-    );
-  }
-
   return (
     <div className="grid gap-3 lg:grid-cols-2">
       <div className="rounded-lg border bg-card p-4">
@@ -603,19 +410,18 @@ function SubscriptionTab({ client }: { client: CenterClient }) {
           Subscription
         </h2>
         <dl className="space-y-2 text-sm">
-          <Row label="Plan" value={formatCenterPlan(subscription?.plan ?? client.plan)} />
-          <Row label="Status" value={subscription?.status ?? client.status} capitalize />
-          <Row label="Billing cycle" value={subscription?.billingCycle ?? "—"} capitalize />
-          <Row label="Seats" value={subscription ? `0/${subscription.seatsLimit}` : "—"} />
-          <Row label="Period ends" value={subscription?.periodEnd ?? client.subscriptionEnds} />
+          <Row label="Plan" value={formatCenterPlan(client.plan)} />
+          <Row label="Status" value={client.status} capitalize />
+          <Row label="MRR" value={client.mrr > 0 ? formatCurrency(client.mrr) : "Trial / unpaid"} />
+          <Row label="Period ends" value={client.subscriptionEnds} />
           <Row label="Registered" value={client.registeredAt} />
         </dl>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
-            <Link href="/center/subscriptions">Manage plans</Link>
+            <Link href="/subscriptions">Manage plans</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link href="/center/billing">Billing history</Link>
+            <Link href="/billing">Billing history</Link>
           </Button>
         </div>
       </div>
@@ -626,15 +432,13 @@ function SubscriptionTab({ client }: { client: CenterClient }) {
           License
         </h2>
         <dl className="space-y-2 text-sm">
-          <Row label="License state" value={license?.status ?? (client.status === "suspended" ? "Revoked" : "Active")} capitalize />
-          <Row label="License key" value={license?.licenseKeyMasked ?? "—"} mono />
-          <Row label="Expires" value={license?.expiresAt ?? "—"} />
-          <Row label="Grace ends" value={license?.graceEndsAt ?? "—"} />
+          <Row label="License state" value={client.status === "suspended" ? "Revoked" : "Active"} />
+          <Row label="Grace period" value={client.status === "trial" ? "14 days" : "—"} />
           <Row label="Modules licensed" value={`${client.modules.length} modules`} />
-          <Row label="AI entitlement" value={(license?.aiEnabled ?? client.aiEnabled) ? "Included" : "Not included"} />
+          <Row label="AI entitlement" value={client.aiEnabled ? "Included" : "Not included"} />
         </dl>
         <Button asChild variant="outline" size="sm" className="mt-4">
-          <Link href="/center/licenses">License center</Link>
+          <Link href="/licenses">License center</Link>
         </Button>
       </div>
 

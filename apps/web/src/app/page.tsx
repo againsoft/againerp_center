@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { CenterDashboard } from "@/components/center/dashboard/center-dashboard";
 
-export default function RootPage() {
-  redirect("/center");
+export default function CenterDashboardPage() {
+  return <CenterDashboard />;
 }

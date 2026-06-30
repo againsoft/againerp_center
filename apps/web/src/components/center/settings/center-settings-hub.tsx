@@ -1,44 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Key, ShieldCheck, Users, Zap } from "lucide-react";
-import { CenterLiveDataBadge } from "@/components/center/center-live-data-badge";
+import { ArrowRight, Key, Users, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { centerPlatformSettings } from "@/lib/mock-data/center";
 
 const sections = [
   {
-    title: "Security & MFA",
-    description: "TOTP setup, step-up auth for high-risk actions — per operator account.",
-    href: "/center/settings/security",
-    icon: ShieldCheck,
-    highlight: true,
-    live: true,
-  },
-  {
     title: "Operators",
     description: "RBAC roles, MFA status, IP allowlists — super_admin through partner_admin.",
-    href: "/center/settings/operators",
+    href: "/settings/operators",
     icon: Users,
     highlight: false,
-    live: true,
   },
   {
     title: "Integrations",
     description: "PageSpeed, Email, SMS, AI — configure third-party API keys used across all client stores.",
-    href: "/center/settings/integrations",
+    href: "/settings/integrations",
     icon: Zap,
     highlight: true,
-    live: true,
   },
   {
     title: "API Keys",
     description: "Scoped keys for integrations and partners — prefix display only, secrets never stored in UI.",
-    href: "/center/settings/api-keys",
+    href: "/settings/api-keys",
     icon: Key,
     highlight: false,
-    live: true,
   },
 ];
 
@@ -79,10 +67,7 @@ export function CenterSettingsHub() {
           >
             <div className="flex items-start justify-between gap-2">
               <section.icon className={cn("h-5 w-5", section.highlight ? "text-amber-500" : "text-violet-600")} />
-              <div className="flex items-center gap-1.5">
-                {section.live ? <CenterLiveDataBadge compact /> : null}
-                <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
             </div>
             <h2 className="mt-3 font-semibold">{section.title}</h2>
             <p className="mt-1 flex-1 text-xs text-muted-foreground">{section.description}</p>

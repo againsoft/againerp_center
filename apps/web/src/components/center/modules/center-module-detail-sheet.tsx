@@ -7,35 +7,28 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import {
+  centerClients,
   formatCenterPlan,
+  getCenterModule,
   getCenterModuleDependents,
+  getCenterModuleClientCount,
   getCenterPlansIncludingModule,
   type CenterModuleDefinition,
 } from "@/lib/mock-data/center";
 
 type Props = {
   module: CenterModuleDefinition | null;
-  modules: CenterModuleDefinition[];
-  clientCount: number;
-  totalClients: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-export function CenterModuleDetailSheet({
-  module: mod,
-  modules,
-  clientCount,
-  totalClients,
-  open,
-  onOpenChange,
-}: Props) {
+export function CenterModuleDetailSheet({ module: mod, open, onOpenChange }: Props) {
   if (!mod) return null;
 
-  const dependents = getCenterModuleDependents(mod.id).filter((d) =>
-    modules.some((m) => m.id === d.id),
-  );
+  const dependents = getCenterModuleDependents(mod.id);
   const plans = getCenterPlansIncludingModule(mod.id);
+  const clientCount = getCenterModuleClientCount(mod.id);
+  const sampleClients = centerClients.filter((c) => c.modules.includes(mod.id)).slice(0, 3);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -58,13 +51,27 @@ export function CenterModuleDetailSheet({
           <div className="rounded-lg border p-4">
             <h3 className="mb-3 text-sm font-medium">Fleet usage</h3>
             <dl className="space-y-2 text-sm">
-              <Row label="Clients enabled" value={`${clientCount} / ${totalClients}`} />
+              <Row label="Clients enabled" value={`${clientCount} / ${centerClients.length}`} />
               <Row label="Min ERP version" value={mod.minErpVersion} mono />
               <Row
                 label="Platform default"
                 value={mod.platformDefault ? "On for new clients" : "Opt-in add-on"}
               />
             </dl>
+            {sampleClients.length > 0 ? (
+              <div className="mt-3 space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">Sample clients</p>
+                {sampleClients.map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/clients/${c.id}?tab=modules`}
+                    className="block text-xs text-violet-700 hover:underline dark:text-violet-300"
+                  >
+                    {c.businessName}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           <div className="rounded-lg border p-4">
@@ -77,7 +84,7 @@ export function CenterModuleDetailSheet({
             ) : (
               <div className="flex flex-wrap gap-1">
                 {mod.dependencies.map((depId) => {
-                  const dep = modules.find((m) => m.id === depId);
+                  const dep = getCenterModule(depId);
                   return (
                     <Badge key={depId} variant="secondary">
                       {dep?.label ?? depId}
@@ -114,7 +121,7 @@ export function CenterModuleDetailSheet({
               </div>
             )}
             <Button asChild variant="link" size="sm" className="mt-2 h-auto p-0 text-violet-600">
-              <Link href="/center/subscriptions">Open plan catalog</Link>
+              <Link href="/subscriptions">Open plan catalog</Link>
             </Button>
           </div>
 
@@ -129,11 +136,9 @@ export function CenterModuleDetailSheet({
             <span className="text-sm">Platform default</span>
             <Switch checked={mod.platformDefault} disabled aria-label="Platform default" />
           </div>
-          <Button asChild variant="outline" size="sm" className="flex-1">
-            <Link href="/center/clients">
-              <Package className="mr-1.5 h-3.5 w-3.5" />
-              Manage per client
-            </Link>
+          <Button variant="outline" size="sm" className="flex-1" disabled>
+            <Package className="mr-1.5 h-3.5 w-3.5" />
+            Push to fleet
           </Button>
           <Button variant="outline" size="sm" className="w-full" onClick={() => onOpenChange(false)}>
             Close

@@ -2,37 +2,16 @@
 
 import { Badge } from "@/components/ui/badge";
 import {
+  centerErpVersions,
   centerRolloutStageLabels,
   centerUpdateChannelColors,
-  type CenterErpVersion,
 } from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  versions: CenterErpVersion[];
-  loading?: boolean;
-};
-
-export function CenterVersionCatalog({ versions, loading }: Props) {
-  if (loading && versions.length === 0) {
-    return (
-      <div className="rounded-lg border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
-        Loading version catalog…
-      </div>
-    );
-  }
-
-  if (versions.length === 0) {
-    return (
-      <div className="rounded-lg border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
-        No ERP versions published yet.
-      </div>
-    );
-  }
-
+export function CenterVersionCatalog() {
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {versions.map((ver) => (
+      {centerErpVersions.map((ver) => (
         <div
           key={ver.id}
           className="flex flex-col rounded-xl border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"

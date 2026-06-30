@@ -46,7 +46,7 @@ export function CenterFleetUpdatesGrid({ updates, onView }: Props) {
               <TableRow key={u.id}>
                 <TableCell>
                   <Link
-                    href={`/center/clients/${u.clientId}?tab=agent`}
+                    href={`/clients/${u.clientId}?tab=agent`}
                     className="font-medium hover:text-violet-700 dark:hover:text-violet-300"
                   >
                     {u.businessName}

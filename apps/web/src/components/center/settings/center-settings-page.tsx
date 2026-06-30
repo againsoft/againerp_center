@@ -10,7 +10,6 @@ export function CenterSettingsPageContent() {
       <CenterPageHeader
         breadcrumb="Control Center › Settings"
         title="Platform Settings"
-        preview
         description="Operator accounts, API keys, and global platform configuration — RBAC and MFA enforced per Security architecture."
       />
       <CenterSettingsStats />

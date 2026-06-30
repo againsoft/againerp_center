@@ -10,8 +10,8 @@ import {
 } from "@/components/center/backups/center-backups-toolbar";
 import { Button } from "@/components/ui/button";
 import {
+  centerClientBackupStatuses,
   filterCenterClientBackupStatuses,
-  type CenterBackupRecord,
   type CenterClientBackupStatus,
 } from "@/lib/mock-data/center";
 
@@ -21,48 +21,31 @@ const defaultFilters: CenterBackupFilters = {
   storage: "all",
 };
 
-type Props = {
-  fleet: CenterClientBackupStatus[];
-  loading?: boolean;
-  onTriggerBackup: (clientId: string) => Promise<void>;
-  onVerifyRun: (recordId: string) => Promise<void>;
-  getClientRuns: (clientId: string) => CenterBackupRecord[];
-};
-
-export function CenterBackupsList({
-  fleet,
-  loading,
-  onTriggerBackup,
-  onVerifyRun,
-  getClientRuns,
-}: Props) {
+export function CenterBackupsList() {
   const [filters, setFilters] = useState<CenterBackupFilters>(defaultFilters);
   const [selected, setSelected] = useState<CenterClientBackupStatus | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const filtered = useMemo(() => filterCenterClientBackupStatuses(fleet, filters), [fleet, filters]);
+  const filtered = useMemo(
+    () => filterCenterClientBackupStatuses(centerClientBackupStatuses, filters),
+    [filters],
+  );
 
-  const overdueCount = fleet.filter((s) => s.status === "overdue" || s.status === "failed").length;
+  const overdueCount = centerClientBackupStatuses.filter(
+    (s) => s.status === "overdue" || s.status === "failed",
+  ).length;
 
   function openStatus(status: CenterClientBackupStatus) {
     setSelected(status);
     setSheetOpen(true);
   }
 
-  if (loading && fleet.length === 0) {
-    return (
-      <div className="rounded-lg border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
-        Loading fleet backup status…
-      </div>
-    );
-  }
-
   return (
     <>
       {overdueCount > 0 ? (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm dark:border-amber-900 dark:bg-amber-950/30">
-          <strong>{overdueCount}</strong> client{overdueCount > 1 ? "s" : ""} with overdue or failed backups
-          — review agent connectivity and disk space before next update.
+          <strong>{overdueCount}</strong> client{overdueCount > 1 ? "s" : ""} with overdue or failed
+          backups — review agent connectivity and disk space before next update.
         </div>
       ) : null}
 
@@ -70,37 +53,24 @@ export function CenterBackupsList({
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        totalCount={fleet.length}
+        totalCount={centerClientBackupStatuses.length}
       />
 
       {filtered.length === 0 ? (
         <CenterEmptyState
-          title={fleet.length === 0 ? "No clients in backup registry" : "No clients match your filters"}
-          description={
-            fleet.length === 0
-              ? "Create clients to track backup policy and verification metadata."
-              : "Try a different search or status filter."
-          }
+          title="No clients match your filters"
+          description="Try a different search or status filter."
           action={
-            fleet.length === 0 ? undefined : (
-              <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
-                Reset filters
-              </Button>
-            )
+            <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
+              Reset filters
+            </Button>
           }
         />
       ) : (
         <CenterBackupsGrid statuses={filtered} onView={openStatus} />
       )}
 
-      <CenterBackupDetailSheet
-        status={selected}
-        records={selected ? getClientRuns(selected.clientId) : []}
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
-        onTriggerBackup={onTriggerBackup}
-        onVerifyRun={onVerifyRun}
-      />
+      <CenterBackupDetailSheet status={selected} open={sheetOpen} onOpenChange={setSheetOpen} />
     </>
   );
 }

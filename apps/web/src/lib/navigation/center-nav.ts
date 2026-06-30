@@ -17,15 +17,12 @@ import {
   Wallet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { isCenterLiveRoute } from "@/lib/navigation/center-live-routes";
 
 export type CenterNavItem = {
   title: string;
   href: string;
   icon: LucideIcon;
   badge?: string;
-  /** Wired to live API + PostgreSQL */
-  live?: boolean;
   /** UI design step — for placeholder screens */
   uiStep?: string;
 };
@@ -38,15 +35,15 @@ export type CenterNavGroup = {
 export const centerNavGroups: CenterNavGroup[] = [
   {
     label: "Overview",
-    items: [{ title: "Dashboard", href: "/center", icon: LayoutDashboard }],
+    items: [{ title: "Dashboard", href: "/", icon: LayoutDashboard }],
   },
   {
     label: "Fleet",
     items: [
-      { title: "Clients", href: "/center/clients", icon: Building2 },
+      { title: "Clients", href: "/clients", icon: Building2 },
       {
         title: "Registrations",
-        href: "/center/registrations",
+        href: "/registrations",
         icon: UserPlus,
       },
     ],
@@ -54,40 +51,35 @@ export const centerNavGroups: CenterNavGroup[] = [
   {
     label: "Commercial",
     items: [
-      { title: "Subscriptions", href: "/center/subscriptions", icon: ClipboardList },
-      { title: "Licenses", href: "/center/licenses", icon: KeyRound },
-      { title: "Billing", href: "/center/billing", icon: Wallet },
+      { title: "Subscriptions", href: "/subscriptions", icon: ClipboardList },
+      { title: "Licenses", href: "/licenses", icon: KeyRound },
+      { title: "Billing", href: "/billing", icon: Wallet },
     ],
   },
   {
     label: "Technical",
     items: [
-      { title: "Modules", href: "/center/modules", icon: Package },
-      { title: "Updates", href: "/center/updates", icon: RefreshCw },
-      { title: "Edge Agents", href: "/center/agents", icon: Radio },
+      { title: "Modules", href: "/modules", icon: Package },
+      { title: "Updates", href: "/updates", icon: RefreshCw },
+      { title: "Edge Agents", href: "/agents", icon: Radio },
       {
         title: "Monitoring",
-        href: "/center/monitoring",
+        href: "/monitoring",
         icon: Activity,
       },
-      { title: "Backups", href: "/center/backups", icon: ShieldCheck },
+      { title: "Backups", href: "/backups", icon: ShieldCheck },
     ],
   },
   {
     label: "Platform",
     items: [
-      { title: "AI Access", href: "/center/ai-access", icon: Bot },
-      { title: "Notifications", href: "/center/notifications", icon: Bell },
-      { title: "Audit Log", href: "/center/audit", icon: FileText },
-      { title: "Settings", href: "/center/settings", icon: Settings },
+      { title: "AI Access", href: "/ai-access", icon: Bot },
+      { title: "Notifications", href: "/notifications", icon: Bell },
+      { title: "Audit Log", href: "/audit", icon: FileText },
+      { title: "Settings", href: "/settings", icon: Settings },
     ],
   },
 ];
 
 /** Flat list for badge lookups and legacy use */
-export const centerNav = centerNavGroups.flatMap((group) =>
-  group.items.map((item) => ({
-    ...item,
-    live: item.live ?? isCenterLiveRoute(item.href),
-  })),
-);
+export const centerNav = centerNavGroups.flatMap((group) => group.items);

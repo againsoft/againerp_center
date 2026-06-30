@@ -9,8 +9,13 @@ import {
   type CenterModuleFilters,
 } from "@/components/center/modules/center-modules-toolbar";
 import { Button } from "@/components/ui/button";
-import type { ModuleTierStats } from "@/lib/hooks/use-modules-data";
-import { filterCenterModules, type CenterModuleDefinition } from "@/lib/mock-data/center";
+import {
+  centerClients,
+  centerModules,
+  filterCenterModules,
+  getCenterModuleClientCount,
+  type CenterModuleDefinition,
+} from "@/lib/mock-data/center";
 
 const defaultFilters: CenterModuleFilters = {
   search: "",
@@ -18,32 +23,24 @@ const defaultFilters: CenterModuleFilters = {
   platformDefault: "all",
 };
 
-type Props = {
-  modules: CenterModuleDefinition[];
-  stats: ModuleTierStats;
-  loading?: boolean;
-};
-
-export function CenterModulesList({ modules, stats, loading }: Props) {
+export function CenterModulesList() {
   const [filters, setFilters] = useState<CenterModuleFilters>(defaultFilters);
   const [selected, setSelected] = useState<CenterModuleDefinition | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const filtered = useMemo(() => filterCenterModules(modules, filters), [modules, filters]);
+  const filtered = useMemo(() => filterCenterModules(centerModules, filters), [filters]);
 
-  const clientCounts = stats.clientCounts;
+  const clientCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const mod of centerModules) {
+      counts[mod.id] = getCenterModuleClientCount(mod.id, centerClients);
+    }
+    return counts;
+  }, []);
 
   function openModule(mod: CenterModuleDefinition) {
     setSelected(mod);
     setSheetOpen(true);
-  }
-
-  if (loading && modules.length === 0) {
-    return (
-      <div className="rounded-lg border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
-        Loading module catalog…
-      </div>
-    );
   }
 
   return (
@@ -52,32 +49,23 @@ export function CenterModulesList({ modules, stats, loading }: Props) {
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        totalCount={modules.length}
+        totalCount={centerModules.length}
       />
 
       {filtered.length === 0 ? (
         <CenterEmptyState
-          title={modules.length === 0 ? "No modules in registry" : "No modules match your filters"}
+          title="No modules match your filters"
           action={
-            modules.length === 0 ? undefined : (
-              <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
-                Reset filters
-              </Button>
-            )
+            <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
+              Reset filters
+            </Button>
           }
         />
       ) : (
         <CenterModulesGrid modules={filtered} clientCounts={clientCounts} onView={openModule} />
       )}
 
-      <CenterModuleDetailSheet
-        module={selected}
-        modules={modules}
-        clientCount={selected ? (clientCounts[selected.id] ?? 0) : 0}
-        totalClients={stats.totalClients}
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
-      />
+      <CenterModuleDetailSheet module={selected} open={sheetOpen} onOpenChange={setSheetOpen} />
     </>
   );
 }

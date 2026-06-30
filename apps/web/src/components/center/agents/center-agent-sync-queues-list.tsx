@@ -1,40 +1,43 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { CenterEmptyState } from "@/components/center/center-empty-state";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CenterAgentSyncQueuesGrid } from "@/components/center/agents/center-agent-sync-queues-grid";
 import {
   CenterAgentSyncQueuesToolbar,
   type CenterAgentSyncQueueFilters,
 } from "@/components/center/agents/center-agent-sync-queues-toolbar";
-import { CenterEmptyState } from "@/components/center/center-empty-state";
 import { Button } from "@/components/ui/button";
-import {
-  filterCenterAgentSyncQueues,
-  type CenterAgentSyncQueue,
-} from "@/lib/mock-data/center";
+import { centerAgentSyncQueues, filterCenterAgentSyncQueues } from "@/lib/mock-data/center";
 
 const defaultFilters: CenterAgentSyncQueueFilters = {
   search: "",
   connectivity: "all",
   queueType: "all",
+  clientId: "",
 };
 
-type Props = {
-  queues: CenterAgentSyncQueue[];
-};
-
-export function CenterAgentSyncQueuesList({ queues }: Props) {
+export function CenterAgentSyncQueuesList() {
   const searchParams = useSearchParams();
-  const clientParam = searchParams.get("client");
+  const clientParam = searchParams.get("client") ?? "";
 
-  const [filters, setFilters] = useState<CenterAgentSyncQueueFilters>(defaultFilters);
+  const [filters, setFilters] = useState<CenterAgentSyncQueueFilters>({
+    ...defaultFilters,
+    clientId: clientParam,
+  });
 
   const filtered = useMemo(() => {
-    const base = filterCenterAgentSyncQueues(queues, filters);
-    if (!clientParam) return base;
-    return base.filter((q) => q.clientId === clientParam);
-  }, [queues, filters, clientParam]);
+    const base = filterCenterAgentSyncQueues(centerAgentSyncQueues, filters);
+    if (!filters.clientId) return base;
+    return base.filter((q) => q.clientId === filters.clientId);
+  }, [filters]);
+
+  useEffect(() => {
+    if (clientParam) {
+      setFilters((prev) => ({ ...prev, clientId: clientParam }));
+    }
+  }, [clientParam]);
 
   return (
     <>
@@ -42,19 +45,16 @@ export function CenterAgentSyncQueuesList({ queues }: Props) {
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        totalCount={queues.length}
+        totalCount={centerAgentSyncQueues.length}
       />
 
       {filtered.length === 0 ? (
         <CenterEmptyState
-          title={queues.length === 0 ? "All sync queues empty" : "No queues match your filters"}
-          description={queues.length === 0 ? "Pending commands and offline agents appear here automatically." : undefined}
+          title="No sync queues match your filters"
           action={
-            queues.length === 0 ? undefined : (
-              <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
-                Reset filters
-              </Button>
-            )
+            <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
+              Reset filters
+            </Button>
           }
         />
       ) : (

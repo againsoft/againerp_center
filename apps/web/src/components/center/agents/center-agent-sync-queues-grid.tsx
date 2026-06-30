@@ -51,7 +51,7 @@ export function CenterAgentSyncQueuesGrid({ queues }: Props) {
               <TableRow key={queue.id}>
                 <TableCell>
                   <Link
-                    href={`/center/clients/${queue.clientId}?tab=agent`}
+                    href={`/clients/${queue.clientId}?tab=agent`}
                     className="text-sm hover:text-violet-700 dark:hover:text-violet-300"
                   >
                     {queue.businessName}

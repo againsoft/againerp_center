@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PanelLeft, PanelLeftClose } from "lucide-react";
+import { PanelLeft, PanelLeftClose, Shield } from "lucide-react";
 import { centerNavGroups } from "@/lib/navigation/center-nav";
-import { isCenterLiveRoute } from "@/lib/navigation/center-live-routes";
-import { CenterLiveDataBadge } from "@/components/center/center-live-data-badge";
-import { getCenterPendingRegistrationCount } from "@/lib/mock-data/center";
-import { useNotificationsData } from "@/lib/hooks/notifications-context";
+import { getCenterPendingRegistrationCount, centerPlatformNotifications } from "@/lib/mock-data/center";
+import { useCenterNotificationStore } from "@/lib/store/center-notification-store";
 import { useCenterSidebarStore } from "@/lib/store/center-sidebar-store";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -30,8 +28,10 @@ export function CenterSidebar({ className, onNavigate }: Props) {
   const pathname = usePathname();
   const collapsed = useCenterSidebarStore((s) => s.collapsed);
   const toggleCollapsed = useCenterSidebarStore((s) => s.toggle);
-  const { stats: notificationStats } = useNotificationsData();
-  const unreadNotifications = notificationStats.unread;
+  const readIds = useCenterNotificationStore((s) => s.readIds);
+  const unreadNotifications = centerPlatformNotifications.filter(
+    (n) => !readIds.includes(n.id),
+  ).length;
   const pendingRegistrations = getCenterPendingRegistrationCount();
 
   return (
@@ -42,7 +42,24 @@ export function CenterSidebar({ className, onNavigate }: Props) {
         className,
       )}
     >
-      <nav className="flex-1 space-y-4 overflow-y-auto p-2 pt-3">
+      <div
+        className={cn(
+          "flex items-center border-b px-3 py-3",
+          collapsed ? "justify-center" : "gap-2",
+        )}
+      >
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-600 text-white">
+          <Shield className="h-4 w-4" />
+        </div>
+        {!collapsed ? (
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold">Control Center</p>
+            <p className="truncate text-[10px] text-muted-foreground">AgainERP Platform</p>
+          </div>
+        ) : null}
+      </div>
+
+      <nav className="flex-1 space-y-4 overflow-y-auto p-2">
         {centerNavGroups.map((group) => (
           <div key={group.label}>
             {!collapsed ? (
@@ -80,9 +97,6 @@ export function CenterSidebar({ className, onNavigate }: Props) {
                     {!collapsed ? (
                       <>
                         <span className="flex-1 truncate">{item.title}</span>
-                        {isCenterLiveRoute(item.href) ? (
-                          <CenterLiveDataBadge compact className="mr-0.5" />
-                        ) : null}
                         {badge ? (
                           <Badge variant="secondary" className="h-5 min-w-5 px-1 text-[10px]">
                             {badge}
@@ -93,8 +107,6 @@ export function CenterSidebar({ className, onNavigate }: Props) {
                       <span className="absolute right-1 top-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-violet-600 px-0.5 text-[8px] font-medium leading-none text-white">
                         {badge}
                       </span>
-                    ) : isCenterLiveRoute(item.href) ? (
-                      <CenterLiveDataBadge compact className="absolute bottom-1 right-1" />
                     ) : null}
                   </Link>
                 );

@@ -7,11 +7,11 @@ import {
   Bot,
   Building2,
   ClipboardList,
-  KeyRound,
   UserPlus,
+  Wallet,
 } from "lucide-react";
-import type { DashboardStats } from "@/lib/adapters/center-dashboard-adapter";
-import { cn } from "@/lib/utils";
+import { getCenterDashboardStats } from "@/lib/mock-data/center";
+import { cn, formatCurrency } from "@/lib/utils";
 
 type KpiItem = {
   id: string;
@@ -58,12 +58,8 @@ function KpiCard({ item }: { item: KpiItem }) {
   );
 }
 
-type Props = {
-  stats: DashboardStats;
-};
-
-export function CenterKpiGrid({ stats }: Props) {
-  const agentOk = stats.agentsAlert === 0 && stats.total > 0;
+export function CenterKpiGrid() {
+  const stats = getCenterDashboardStats();
 
   const items: KpiItem[] = [
     {
@@ -71,36 +67,37 @@ export function CenterKpiGrid({ stats }: Props) {
       label: "Active clients",
       value: String(stats.active),
       sub: `${stats.total} total · ${stats.suspended} suspended`,
-      href: "/center/clients",
+      href: "/clients",
       icon: Building2,
       accent: "bg-violet-600",
     },
     {
-      id: "licenses",
-      label: "Active licenses",
-      value: String(stats.licenses),
-      sub: `${stats.activeSubscriptions} subscriptions`,
-      href: "/center/licenses",
-      icon: KeyRound,
+      id: "mrr",
+      label: "Monthly revenue (MRR)",
+      value: formatCurrency(stats.mrr),
+      sub: "+18.2% vs last month",
+      up: true,
+      href: "/billing",
+      icon: Wallet,
       accent: "bg-emerald-600",
     },
     {
       id: "agents",
       label: "Agents online",
-      value: stats.total > 0 ? `${stats.agentsOnline}/${stats.total}` : "0",
-      sub: stats.agentsAlert > 0 ? `${stats.agentsAlert} need attention` : stats.total > 0 ? "All heartbeats OK" : "No clients yet",
-      up: agentOk || stats.total === 0 ? true : false,
-      href: "/center/agents?tab=fleet",
+      value: `${stats.agentsOnline}/${stats.total}`,
+      sub: stats.agentsAlert > 0 ? `${stats.agentsAlert} need attention` : "All heartbeats OK",
+      up: stats.agentsAlert === 0,
+      href: "/monitoring",
       icon: Activity,
       accent: stats.agentsAlert > 0 ? "bg-amber-500" : "bg-sky-600",
     },
     {
       id: "ai",
-      label: "Business+ plans",
-      value: stats.total > 0 ? `${stats.aiEnabled}/${stats.total}` : "0",
-      sub: stats.total > 0 ? `${Math.round((stats.aiEnabled / stats.total) * 100)}% of fleet` : "Add clients to track",
+      label: "AI OS enabled",
+      value: `${stats.aiEnabled}/${stats.total}`,
+      sub: `${Math.round((stats.aiEnabled / stats.total) * 100)}% of fleet`,
       up: true,
-      href: "/center/ai-access",
+      href: "/ai-access",
       icon: Bot,
       accent: "bg-indigo-600",
     },
@@ -108,18 +105,18 @@ export function CenterKpiGrid({ stats }: Props) {
       id: "pending",
       label: "Pending signups",
       value: String(stats.pendingRegs),
-      sub: stats.pendingRegs > 0 ? "Needs review" : "Queue empty",
-      up: stats.pendingRegs === 0,
-      href: "/center/registrations",
+      sub: "Needs review",
+      up: false,
+      href: "/registrations",
       icon: UserPlus,
       accent: "bg-orange-500",
     },
     {
       id: "subscriptions",
       label: "Active subscriptions",
-      value: String(stats.activeSubscriptions),
-      sub: "Fleet billing entitlements",
-      href: "/center/subscriptions",
+      value: String(stats.active),
+      sub: "Plans billed this cycle",
+      href: "/subscriptions",
       icon: ClipboardList,
       accent: "bg-slate-600",
     },

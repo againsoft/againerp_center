@@ -71,11 +71,11 @@ export function CenterAgentDiagnosticDetailSheet({ diagnostic, open, onOpenChang
               Download bundle
             </Button>
             <Button asChild variant="outline" size="sm">
-              <Link href={`/center/clients/${diagnostic.clientId}?tab=agent`}>Client agent tab</Link>
+              <Link href={`/clients/${diagnostic.clientId}?tab=agent`}>Client agent tab</Link>
             </Button>
             {diagnostic.commandId ? (
               <Button asChild variant="outline" size="sm">
-                <Link href={`/center/agents?tab=commands&command=${diagnostic.commandId}`}>
+                <Link href={`/agents?tab=commands&command=${diagnostic.commandId}`}>
                   View command
                 </Link>
               </Button>

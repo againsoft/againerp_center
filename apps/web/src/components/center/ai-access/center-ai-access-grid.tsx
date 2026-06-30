@@ -68,7 +68,7 @@ export function CenterAiAccessGrid({ access, onView }: Props) {
               <TableRow key={row.clientId}>
                 <TableCell>
                   <Link
-                    href={`/center/clients/${row.clientId}?tab=modules`}
+                    href={`/clients/${row.clientId}?tab=modules`}
                     className="font-medium hover:text-violet-700 dark:hover:text-violet-300"
                   >
                     {row.businessName}

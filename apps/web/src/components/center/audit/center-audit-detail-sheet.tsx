@@ -51,7 +51,7 @@ export function CenterAuditDetailSheet({ log, open, onOpenChange }: Props) {
             </dl>
             {log.clientId ? (
               <Button asChild variant="link" size="sm" className="mt-2 h-auto p-0 text-violet-600">
-                <Link href={`/center/clients/${log.clientId}`}>Open {log.clientName}</Link>
+                <Link href={`/clients/${log.clientId}`}>Open {log.clientName}</Link>
               </Button>
             ) : null}
           </div>

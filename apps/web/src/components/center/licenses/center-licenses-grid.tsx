@@ -46,7 +46,7 @@ export function CenterLicensesGrid({ licenses, onView }: Props) {
               <TableRow key={lic.id}>
                 <TableCell>
                   <Link
-                    href={`/center/clients/${lic.clientId}?tab=subscription`}
+                    href={`/clients/${lic.clientId}?tab=subscription`}
                     className="font-medium hover:text-violet-700"
                   >
                     {lic.businessName}

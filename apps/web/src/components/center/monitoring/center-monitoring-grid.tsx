@@ -60,7 +60,7 @@ export function CenterMonitoringGrid({ heartbeats, onView }: Props) {
               <TableRow key={hb.clientId}>
                 <TableCell>
                   <Link
-                    href={`/center/clients/${hb.clientId}?tab=agent`}
+                    href={`/clients/${hb.clientId}?tab=agent`}
                     className="font-medium hover:text-violet-700 dark:hover:text-violet-300"
                   >
                     {hb.businessName}

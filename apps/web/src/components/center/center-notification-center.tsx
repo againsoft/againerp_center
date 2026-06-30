@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { Bell, Loader2 } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,10 +13,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useNotificationsData } from "@/lib/hooks/notifications-context";
 import {
   centerNotificationCategoryLabels,
   centerNotificationSeverityColors,
+  centerPlatformNotifications,
 } from "@/lib/mock-data/center";
 import { useCenterNotificationStore } from "@/lib/store/center-notification-store";
 import { cn } from "@/lib/utils";
@@ -25,21 +25,20 @@ export function CenterNotificationCenter() {
   const readIds = useCenterNotificationStore((s) => s.readIds);
   const markRead = useCenterNotificationStore((s) => s.markRead);
   const markAllRead = useCenterNotificationStore((s) => s.markAllRead);
-  const { notifications, stats, loading } = useNotificationsData();
 
-  const sorted = useMemo(
+  const notifications = useMemo(
     () =>
-      [...notifications].sort((a, b) => {
+      [...centerPlatformNotifications].sort((a, b) => {
         const aRead = readIds.includes(a.id);
         const bRead = readIds.includes(b.id);
         if (aRead !== bRead) return aRead ? 1 : -1;
         return 0;
       }),
-    [notifications, readIds],
+    [readIds],
   );
 
-  const preview = sorted.slice(0, 6);
-  const unreadCount = stats.unread;
+  const unreadCount = notifications.filter((n) => !readIds.includes(n.id)).length;
+  const preview = notifications.slice(0, 6);
 
   return (
     <DropdownMenu>
@@ -66,19 +65,14 @@ export function CenterNotificationCenter() {
             <button
               type="button"
               className="text-[10px] font-medium text-violet-600 hover:underline"
-              onClick={() => markAllRead(notifications.map((n) => n.id))}
+              onClick={markAllRead}
             >
               Mark all read
             </button>
           ) : null}
         </div>
         <DropdownMenuSeparator />
-        {loading ? (
-          <DropdownMenuItem disabled className="py-3 text-xs text-muted-foreground">
-            <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-            Loading notifications…
-          </DropdownMenuItem>
-        ) : preview.length === 0 ? (
+        {preview.length === 0 ? (
           <DropdownMenuItem disabled className="py-3 text-xs text-muted-foreground">
             No notifications
           </DropdownMenuItem>
@@ -120,7 +114,7 @@ export function CenterNotificationCenter() {
         )}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/center/notifications" className="w-full cursor-pointer">
+          <Link href="/notifications" className="w-full cursor-pointer">
             View all notifications
           </Link>
         </DropdownMenuItem>

@@ -50,7 +50,7 @@ export function CenterBillingInvoicesGrid({ invoices, onView }: Props) {
                 </TableCell>
                 <TableCell>
                   <Link
-                    href={`/center/clients/${inv.clientId}?tab=subscription`}
+                    href={`/clients/${inv.clientId}?tab=subscription`}
                     className="font-medium hover:text-violet-700 dark:hover:text-violet-300"
                   >
                     {inv.businessName}

@@ -5,17 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   centerMonitoringAlertColors,
+  centerMonitoringAlerts,
   type CenterMonitoringAlert,
 } from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  alerts: CenterMonitoringAlert[];
   onViewClient?: (clientId: string) => void;
 };
 
-export function CenterMonitoringAlerts({ alerts, onViewClient }: Props) {
-  const active = alerts.filter((a) => !a.acknowledged);
+export function CenterMonitoringAlerts({ onViewClient }: Props) {
+  const active = centerMonitoringAlerts.filter((a) => !a.acknowledged);
 
   if (active.length === 0) {
     return (
@@ -62,7 +62,7 @@ function AlertRow({
               </Button>
             ) : (
               <Button asChild variant="outline" size="sm" className="h-8">
-                <Link href={`/center/monitoring?client=${alert.clientId}`}>View agent</Link>
+                <Link href={`/monitoring?client=${alert.clientId}`}>View agent</Link>
               </Button>
             )
           ) : null}

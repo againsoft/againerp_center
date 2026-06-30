@@ -73,7 +73,7 @@ export function CenterAgentCommandDetailSheet({ command, open, onOpenChange }: P
               />
             </dl>
             <Button asChild variant="link" size="sm" className="mt-2 h-auto p-0 text-violet-600">
-              <Link href={`/center/clients/${command.clientId}`}>Open client detail</Link>
+              <Link href={`/clients/${command.clientId}`}>Open client detail</Link>
             </Button>
           </div>
 
@@ -100,7 +100,7 @@ export function CenterAgentCommandDetailSheet({ command, open, onOpenChange }: P
               Cancel command
             </Button>
             <Button asChild variant="outline" size="sm">
-              <Link href="/center/audit">View audit log</Link>
+              <Link href="/audit">View audit log</Link>
             </Button>
           </div>
         </div>

@@ -1,55 +1,24 @@
 "use client";
 
-import { Loader2, Pause, Play } from "lucide-react";
-import { useState } from "react";
+import { Pause, Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   centerRolloutStageLabels,
   centerUpdateChannelColors,
-  type CenterUpdateRollout,
+  centerUpdateRollouts,
 } from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  rollouts: CenterUpdateRollout[];
-  onAdvance: (rolloutId: string) => Promise<void>;
-  onPause: (rolloutId: string) => Promise<void>;
-};
-
-export function CenterActiveRolloutsBanner({ rollouts, onAdvance, onPause }: Props) {
-  const active = rollouts.filter((r) => r.status === "active");
-  const [busyId, setBusyId] = useState<string | null>(null);
+export function CenterActiveRolloutsBanner() {
+  const active = centerUpdateRollouts.filter((r) => r.status === "active");
 
   if (active.length === 0) return null;
-
-  async function handleAdvance(id: string) {
-    setBusyId(id);
-    try {
-      await onAdvance(id);
-    } finally {
-      setBusyId(null);
-    }
-  }
-
-  async function handlePause(id: string) {
-    setBusyId(id);
-    try {
-      await onPause(id);
-    } finally {
-      setBusyId(null);
-    }
-  }
 
   return (
     <div className="space-y-2">
       {active.map((rollout) => {
-        const progress =
-          rollout.clientsTotal > 0
-            ? Math.round((rollout.clientsComplete / rollout.clientsTotal) * 100)
-            : 0;
-        const busy = busyId === rollout.id;
-
+        const progress = Math.round((rollout.clientsComplete / rollout.clientsTotal) * 100);
         return (
           <div
             key={rollout.id}
@@ -84,32 +53,12 @@ export function CenterActiveRolloutsBanner({ rollouts, onAdvance, onPause }: Pro
                 </div>
               </div>
               <div className="flex shrink-0 gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8"
-                  disabled={busy}
-                  onClick={() => void handlePause(rollout.id)}
-                >
-                  {busy ? (
-                    <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Pause className="mr-1 h-3.5 w-3.5" />
-                  )}
+                <Button variant="outline" size="sm" className="h-8" disabled>
+                  <Pause className="mr-1 h-3.5 w-3.5" />
                   Pause
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8"
-                  disabled={busy}
-                  onClick={() => void handleAdvance(rollout.id)}
-                >
-                  {busy ? (
-                    <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Play className="mr-1 h-3.5 w-3.5" />
-                  )}
+                <Button variant="outline" size="sm" className="h-8" disabled>
+                  <Play className="mr-1 h-3.5 w-3.5" />
                   Advance stage
                 </Button>
               </div>

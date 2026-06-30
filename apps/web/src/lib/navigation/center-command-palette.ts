@@ -45,7 +45,7 @@ export function buildCenterCommandItems(): CenterCommandItem[] {
       group: "Quick actions",
       label: "Review pending registrations",
       hint: "Fleet onboarding queue",
-      href: "/center/registrations",
+      href: "/registrations",
       keywords: "signup onboarding approve",
     },
     {
@@ -53,7 +53,7 @@ export function buildCenterCommandItems(): CenterCommandItem[] {
       group: "Quick actions",
       label: "Open fleet monitoring",
       hint: "Agent heartbeat telemetry",
-      href: "/center/monitoring",
+      href: "/monitoring",
       keywords: "health agents online",
     },
     {
@@ -61,7 +61,7 @@ export function buildCenterCommandItems(): CenterCommandItem[] {
       group: "Quick actions",
       label: "Edge agent console",
       hint: "Commands and sync queues",
-      href: "/center/agents",
+      href: "/agents",
       keywords: "command queue diagnostics",
     },
     {
@@ -69,7 +69,7 @@ export function buildCenterCommandItems(): CenterCommandItem[] {
       group: "Quick actions",
       label: "Platform notifications",
       hint: "Unread operator alerts",
-      href: "/center/notifications",
+      href: "/notifications",
       keywords: "alerts bell inbox",
     },
     {

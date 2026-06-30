@@ -49,7 +49,7 @@ export function CenterActivationBundlesGrid({ bundles }: Props) {
               <TableRow key={bundle.id}>
                 <TableCell>
                   <Link
-                    href={`/center/clients/${bundle.clientId}`}
+                    href={`/clients/${bundle.clientId}`}
                     className="text-sm hover:text-violet-700 dark:hover:text-violet-300"
                   >
                     {bundle.businessName}

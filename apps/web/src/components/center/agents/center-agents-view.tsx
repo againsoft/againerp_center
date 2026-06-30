@@ -1,21 +1,14 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CenterActivationBundlesList } from "@/components/center/agents/center-activation-bundles-list";
 import { CenterAgentCommandsList } from "@/components/center/agents/center-agent-commands-list";
 import { CenterAgentDiagnosticsList } from "@/components/center/agents/center-agent-diagnostics-list";
 import { CenterAgentSyncQueuesList } from "@/components/center/agents/center-agent-sync-queues-list";
-import type {
-  CenterActivationBundle,
-  CenterAgentCommand,
-  CenterAgentDiagnostic,
-  CenterAgentSyncQueue,
-} from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 
 const views = [
-  { key: "fleet" as const, label: "Fleet heartbeat" },
   { key: "commands" as const, label: "Command queue" },
   { key: "activations" as const, label: "Activation bundles" },
   { key: "sync" as const, label: "Offline sync queues" },
@@ -25,8 +18,6 @@ const views = [
 type AgentView = (typeof views)[number]["key"];
 
 const bannerCopy: Record<AgentView, string> = {
-  fleet:
-    "Live agent registry from heartbeat telemetry — CPU, memory, disk, and uptime reported every 60 seconds by Edge Agent. Agents with no heartbeat in 5 minutes show as offline.",
   commands:
     "Commands are JWS-signed envelopes delivered on the next agent heartbeat. Agents verify signatures, reject expired or duplicate command IDs, and report results on subsequent heartbeats.",
   activations:
@@ -40,30 +31,12 @@ function isAgentView(value: string | null): value is AgentView {
   return views.some((v) => v.key === value);
 }
 
-type Props = {
-  fleetList?: ReactNode;
-  commands: CenterAgentCommand[];
-  activations: CenterActivationBundle[];
-  syncQueues: CenterAgentSyncQueue[];
-  diagnostics: CenterAgentDiagnostic[];
-  getCommand: (id: string) => CenterAgentCommand | undefined;
-  getDiagnostic: (id: string) => CenterAgentDiagnostic | undefined;
-};
-
-export function CenterAgentsView({
-  fleetList,
-  commands,
-  activations,
-  syncQueues,
-  diagnostics,
-  getCommand,
-  getDiagnostic,
-}: Props) {
+export function CenterAgentsView() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
   const [view, setView] = useState<AgentView>(
-    isAgentView(tabParam) ? tabParam : "fleet",
+    isAgentView(tabParam) ? tabParam : "commands",
   );
 
   useEffect(() => {
@@ -101,17 +74,10 @@ export function CenterAgentsView({
         ))}
       </div>
 
-      {view === "fleet" ? fleetList : null}
-      {view === "commands" ? (
-        <CenterAgentCommandsList commands={commands} getCommand={getCommand} />
-      ) : null}
-      {view === "activations" ? (
-        <CenterActivationBundlesList bundles={activations} />
-      ) : null}
-      {view === "sync" ? <CenterAgentSyncQueuesList queues={syncQueues} /> : null}
-      {view === "diagnostics" ? (
-        <CenterAgentDiagnosticsList diagnostics={diagnostics} getDiagnostic={getDiagnostic} />
-      ) : null}
+      {view === "commands" ? <CenterAgentCommandsList /> : null}
+      {view === "activations" ? <CenterActivationBundlesList /> : null}
+      {view === "sync" ? <CenterAgentSyncQueuesList /> : null}
+      {view === "diagnostics" ? <CenterAgentDiagnosticsList /> : null}
     </div>
   );
 }

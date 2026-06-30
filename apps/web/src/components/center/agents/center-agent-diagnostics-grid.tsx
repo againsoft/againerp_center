@@ -53,7 +53,7 @@ export function CenterAgentDiagnosticsGrid({ diagnostics, onView }: Props) {
               <TableRow key={diag.id}>
                 <TableCell>
                   <Link
-                    href={`/center/clients/${diag.clientId}?tab=agent`}
+                    href={`/clients/${diag.clientId}?tab=agent`}
                     className="text-sm hover:text-violet-700 dark:hover:text-violet-300"
                   >
                     {diag.businessName}

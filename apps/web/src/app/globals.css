@@ -1,132 +1,515 @@
 @import "tailwindcss";
-@import "tw-animate-css";
+@import "../design-system/css/tokens.css";
+@import "ag-grid-community/styles/ag-grid.css";
+@import "ag-grid-community/styles/ag-theme-quartz.css";
 
-@custom-variant dark (&:is(.dark *));
+/* Dark Tailwind utilities only inside admin panel — storefront ignores html.dark */
+@custom-variant dark (&:where(.admin-site.dark, .admin-site.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --font-heading: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-popover: var(--popover);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-danger: var(--color-danger);
+  --color-info: var(--color-info);
+  --color-surface: var(--color-surface);
+  --font-sans: var(--font-geist-sans);
 }
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+html {
+  font-size: 14px;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+*,
+*::before,
+*::after {
+  border-color: var(--border);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+html.storefront-site body,
+body.storefront-site {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Shared control border — matches catalog/products live search */
+.control-border {
+  border: 1px solid var(--input);
+}
+
+.ag-theme-quartz {
+  --ag-font-family: inherit;
+  --ag-font-size: 12px;
+  --ag-grid-size: 4px;
+  --ag-row-height: 34px;
+  --ag-header-height: 34px;
+  --ag-list-item-height: 28px;
+  --ag-active-color: var(--primary);
+  --ag-border-color: var(--input);
+  --ag-secondary-border-color: var(--input);
+  --ag-background-color: var(--card);
+  --ag-foreground-color: var(--foreground);
+  --ag-header-background-color: var(--muted);
+  --ag-row-border-color: var(--input);
+  --ag-header-column-separator-color: var(--input);
+  --ag-input-border-color: var(--input);
+  --ag-checkbox-background-color: var(--card);
+  --ag-checkbox-unchecked-color: var(--muted-foreground);
+  --ag-row-hover-color: color-mix(in srgb, var(--primary) 8%, transparent);
+  --ag-selected-row-background-color: color-mix(in srgb, var(--primary) 12%, transparent);
+  --ag-menu-background-color: var(--card);
+  --ag-panel-background-color: var(--card);
+  --ag-popup-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --ag-range-selection-border-color: color-mix(in srgb, var(--primary) 32%, var(--input));
+  --ag-input-focus-border-color: color-mix(in srgb, var(--primary) 32%, var(--input));
+  --ag-input-focus-box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 12%, transparent);
+  --ag-range-selection-background-color: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+/* Dark mode — match app tokens; works with ag-theme-quartz-dark class */
+.dark .ag-theme-quartz,
+.dark .ag-theme-quartz.ag-theme-quartz-dark,
+.ag-theme-quartz.ag-theme-quartz-dark {
+  color-scheme: dark;
+  --ag-active-color: var(--primary);
+  --ag-background-color: var(--card);
+  --ag-foreground-color: var(--foreground);
+  --ag-border-color: var(--input);
+  --ag-secondary-border-color: var(--input);
+  --ag-header-background-color: var(--muted);
+  --ag-tooltip-background-color: var(--muted);
+  --ag-control-panel-background-color: var(--muted);
+  --ag-row-border-color: var(--input);
+  --ag-header-column-separator-color: var(--input);
+  --ag-input-border-color: var(--input);
+  --ag-input-background-color: var(--background);
+  --ag-input-disabled-background-color: color-mix(in srgb, var(--card), var(--foreground) 6%);
+  --ag-input-disabled-border-color: var(--input);
+  --ag-checkbox-background-color: var(--card);
+  --ag-checkbox-unchecked-color: var(--muted-foreground);
+  --ag-checkbox-border-color: var(--input);
+  --ag-odd-row-background-color: color-mix(in srgb, var(--card), #000 8%);
+  --ag-row-hover-color: color-mix(in srgb, var(--primary) 14%, transparent);
+  --ag-selected-row-background-color: color-mix(in srgb, var(--primary) 18%, transparent);
+  --ag-menu-background-color: var(--card);
+  --ag-menu-border-color: var(--input);
+  --ag-panel-background-color: var(--card);
+  --ag-panel-border-color: var(--input);
+  --ag-modal-overlay-background-color: rgba(0, 0, 0, 0.55);
+  --ag-card-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+  --ag-popup-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  --ag-icon-font-color: var(--muted-foreground);
+  --ag-disabled-foreground-color: color-mix(in srgb, var(--foreground) 45%, transparent);
+  --ag-range-selection-border-color: color-mix(in srgb, var(--primary) 38%, var(--input));
+  --ag-input-focus-border-color: color-mix(in srgb, var(--primary) 38%, var(--input));
+  --ag-input-focus-box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 14%, transparent);
+  --ag-range-selection-background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+.dark .ag-theme-quartz .ag-paging-panel,
+.dark .ag-theme-quartz-dark .ag-paging-panel {
+  border-top-color: var(--input);
+  background-color: var(--card);
+  color: var(--foreground);
+}
+
+.dark .ag-theme-quartz .ag-picker-field-wrapper,
+.dark .ag-theme-quartz-dark .ag-picker-field-wrapper,
+.dark .ag-theme-quartz .ag-select,
+.dark .ag-theme-quartz-dark .ag-select {
+  background-color: var(--background);
+  border-color: var(--input);
+  color: var(--foreground);
+}
+
+.dark .ag-theme-quartz .ag-header-cell-text,
+.dark .ag-theme-quartz-dark .ag-header-cell-text {
+  color: var(--foreground);
+}
+
+.dark .ag-theme-quartz .ag-cell,
+.dark .ag-theme-quartz-dark .ag-cell {
+  color: var(--foreground);
+}
+
+/* Force dark surfaces — overrides AG Grid v35 default light programmatic theme */
+.dark .ag-theme-quartz .ag-root-wrapper,
+.dark .ag-theme-quartz.ag-theme-quartz-dark .ag-root-wrapper,
+.dark .ag-theme-quartz .ag-body-viewport,
+.dark .ag-theme-quartz.ag-theme-quartz-dark .ag-body-viewport,
+.dark .ag-theme-quartz .ag-center-cols-viewport,
+.dark .ag-theme-quartz.ag-theme-quartz-dark .ag-center-cols-viewport,
+.dark .ag-theme-quartz .ag-header,
+.dark .ag-theme-quartz.ag-theme-quartz-dark .ag-header,
+.dark .ag-theme-quartz .ag-row,
+.dark .ag-theme-quartz.ag-theme-quartz-dark .ag-row {
+  background-color: var(--card);
+}
+
+.dark .ag-theme-quartz .ag-header,
+.dark .ag-theme-quartz.ag-theme-quartz-dark .ag-header {
+  background-color: var(--muted);
+}
+
+.dark .ag-theme-quartz .ag-row-odd,
+.dark .ag-theme-quartz.ag-theme-quartz-dark .ag-row-odd {
+  background-color: color-mix(in srgb, var(--card), #000 8%);
+}
+
+/* Column resize handle — easier to grab */
+.ag-theme-quartz .ag-header-cell-resize,
+.ag-theme-quartz-dark .ag-header-cell-resize {
+  width: 6px;
+  cursor: col-resize;
+}
+
+/* Duplicate / reserved slug — live grid alert */
+.ag-theme-quartz .ag-cell.slug-cell-invalid,
+.ag-theme-quartz-dark .ag-cell.slug-cell-invalid {
+  box-shadow: inset 0 0 0 1.5px hsl(var(--destructive));
+  background-color: hsl(var(--destructive) / 0.08);
+}
+
+.ag-theme-quartz .ag-header-cell-resize::after,
+.ag-theme-quartz-dark .ag-header-cell-resize::after {
+  opacity: 0.35;
+}
+
+.ag-theme-quartz .ag-header-cell:hover .ag-header-cell-resize::after,
+.ag-theme-quartz-dark .ag-header-cell:hover .ag-header-cell-resize::after {
+  opacity: 0.7;
+}
+
+.ag-theme-quartz .ag-header-cell,
+.ag-theme-quartz-dark .ag-header-cell {
+  cursor: grab;
+}
+
+.ag-theme-quartz .ag-header-cell:active,
+.ag-theme-quartz-dark .ag-header-cell:active {
+  cursor: grabbing;
+}
+
+.ag-theme-quartz .ag-header-cell.product-grid-select-col,
+.ag-theme-quartz-dark .ag-header-cell.product-grid-select-col,
+.ag-theme-quartz .ag-cell.product-grid-select-col,
+.ag-theme-quartz-dark .ag-cell.product-grid-select-col {
+  padding-left: 8px;
+  padding-right: 0;
+  justify-content: center;
+}
+
+.ag-theme-quartz .ag-header-cell.product-grid-select-col .ag-header-cell-comp-wrapper,
+.ag-theme-quartz-dark .ag-header-cell.product-grid-select-col .ag-header-cell-comp-wrapper {
+  justify-content: center;
+}
+
+.ag-theme-quartz .ag-header-cell.product-grid-icon-col,
+.ag-theme-quartz-dark .ag-header-cell.product-grid-icon-col,
+.ag-theme-quartz .ag-cell.product-grid-icon-col,
+.ag-theme-quartz-dark .ag-cell.product-grid-icon-col {
+  padding-left: 0;
+  padding-right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Category row drag */
+.ag-theme-quartz .ag-row,
+.ag-theme-quartz-dark .ag-row {
+  cursor: grab;
+}
+
+.ag-theme-quartz .ag-row-dragging,
+.ag-theme-quartz-dark .ag-row-dragging {
+  cursor: grabbing;
+  opacity: 0.85;
+}
+
+.ag-theme-quartz .ag-row-drag,
+.ag-theme-quartz-dark .ag-row-drag {
+  cursor: grab;
+}
+
+/* Dual-handle price range slider */
+.dual-range-thumb {
+  pointer-events: none;
+  height: 1.25rem;
+}
+
+.dual-range-thumb::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 9999px;
+  border: 2px solid var(--primary);
+  background: var(--background);
+  cursor: grab;
+  margin-top: -5px;
+}
+
+.dual-range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  height: 14px;
+  width: 14px;
+  border-radius: 9999px;
+  border: 2px solid var(--primary);
+  background: var(--background);
+  cursor: grab;
+}
+
+.dual-range-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 4px;
+}
+
+.dual-range-thumb::-moz-range-track {
+  background: transparent;
+  height: 4px;
+}
+
+/* Compact page typography */
+.page-title {
+  @apply text-lg font-semibold tracking-tight;
+}
+
+.page-subtitle {
+  @apply text-[11px] text-muted-foreground;
+}
+
+/* Business Settings — launcher & category workspace */
+.settings-hero {
+  isolation: isolate;
+}
+
+.settings-category-card:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.settings-save-bar {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* Order print documents — standalone popup (no admin shell) */
+@media print {
+  .print-hide {
+    display: none !important;
   }
-  html {
-    @apply font-sans antialiased;
-    font-size: 14px;
+
+  .print-app-root {
+    background: white !important;
   }
-  body {
-    @apply bg-background text-foreground font-sans;
-    font-size: 0.875rem;
-    line-height: 1.4;
+
+  .order-print-document {
+    box-shadow: none !important;
+    max-width: none !important;
+    margin: 0 !important;
   }
+
+  @page {
+    margin: 10mm;
+    size: A4;
+  }
+}
+
+@media screen {
+  .print-app-root {
+    background: #ececec;
+  }
+}
+
+/* Storefront — MoharazNX customer shop theme (light only, white page) */
+html.storefront-site,
+html.storefront-site.dark,
+html.storefront-site[data-theme="dark"] {
+  color-scheme: light !important;
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --popover: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --color-background: #ffffff;
+  --color-surface: #ffffff;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-border: #e2e8f0;
+}
+
+body.storefront-site {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.storefront {
+  --background: #ffffff;
+  --color-background: #ffffff;
+  --radius: 0.375rem;
+  --sf-max: 90rem;
+  --primary: #eb6626;
+  --primary-foreground: #ffffff;
+  --ring: color-mix(in srgb, #eb6626 35%, var(--border));
+  background-color: #ffffff;
+  font-size: inherit;
+  line-height: inherit;
+  color-scheme: light;
+}
+
+.storefront h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+@media (min-width: 640px) {
+  .storefront h1 {
+    font-size: 1.5rem;
+  }
+}
+
+.storefront h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.storefront .sf-container {
+  width: 100%;
+  max-width: var(--sf-max);
+  margin-inline: auto;
+}
+
+.storefront .scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.storefront .scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+}
+
+.storefront .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+/* Catalog price range — dual-thumb slider */
+.storefront .catalog-price-range-thumb {
+  height: 1.5rem;
+  margin: 0;
+  pointer-events: none;
+}
+
+.storefront .catalog-price-range-min {
+  z-index: 20;
+}
+
+.storefront .catalog-price-range-max {
+  z-index: 10;
+}
+
+.storefront .catalog-price-range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  position: relative;
+  height: 1.125rem;
+  width: 1.125rem;
+  margin-top: -0.375rem;
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--primary));
+  background: hsl(var(--background));
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+  cursor: grab;
+}
+
+.storefront .catalog-price-range-thumb:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.08);
+}
+
+.storefront .catalog-price-range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  height: 1.125rem;
+  width: 1.125rem;
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--primary));
+  background: hsl(var(--background));
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+  cursor: grab;
+}
+
+.storefront .catalog-price-range-thumb::-webkit-slider-runnable-track {
+  height: 0.375rem;
+  background: transparent;
+}
+
+.storefront .catalog-price-range-thumb::-moz-range-track {
+  height: 0.375rem;
+  background: transparent;
+}
+
+/* ── Animated rainbow border for PC Builder active slot ── */
+@keyframes rainbow-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.rainbow-border-wrap {
+  position: relative;
+  padding: 2px;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.rainbow-border-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -100%;
+  background: conic-gradient(
+    #ff0000, #ff6600, #ffff00, #00ff00,
+    #00ffff, #0000ff, #8b00ff, #ff0000
+  );
+  animation: rainbow-spin 3s linear infinite;
+}
+
+.rainbow-border-inner {
+  position: relative;
+  z-index: 1;
+  border-radius: 0.375rem;
+  background-color: var(--card) !important;
 }

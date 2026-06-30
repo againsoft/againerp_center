@@ -1,63 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { Loader2, RotateCcw, Upload } from "lucide-react";
-import { useState } from "react";
+import { RotateCcw, Upload, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
-import { findRolloutForUpdate } from "@/lib/adapters/center-update-adapter";
 import {
   centerClientUpdateStatusColors,
   centerUpdateChannelColors,
+  centerUpdateRollouts,
   type CenterClientUpdate,
-  type CenterUpdateRollout,
 } from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 
 type Props = {
   update: CenterClientUpdate | null;
-  rollouts: CenterUpdateRollout[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onPushUpdate: (clientId: string) => Promise<void>;
-  onRollbackUpdate: (clientId: string) => Promise<void>;
 };
 
-export function CenterClientUpdateSheet({
-  update,
-  rollouts,
-  open,
-  onOpenChange,
-  onPushUpdate,
-  onRollbackUpdate,
-}: Props) {
-  const [busy, setBusy] = useState(false);
-
+export function CenterClientUpdateSheet({ update, open, onOpenChange }: Props) {
   if (!update) return null;
 
-  const rollout = findRolloutForUpdate(update, rollouts);
-  const canAct = Boolean(update.targetVersion) && update.status !== "up_to_date";
-
-  async function handlePush() {
-    setBusy(true);
-    try {
-      await onPushUpdate(update!.clientId);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function handleRollback() {
-    setBusy(true);
-    try {
-      await onRollbackUpdate(update!.clientId);
-      onOpenChange(false);
-    } finally {
-      setBusy(false);
-    }
-  }
+  const rollout = update.rolloutId
+    ? centerUpdateRollouts.find((r) => r.id === update.rolloutId)
+    : undefined;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -91,7 +59,7 @@ export function CenterClientUpdateSheet({
               {update.lastAttempt ? <Row label="Last attempt" value={update.lastAttempt} /> : null}
             </dl>
             <Button asChild variant="link" size="sm" className="mt-2 h-auto p-0 text-violet-600">
-              <Link href={`/center/clients/${update.clientId}?tab=agent`}>Open client agent tab</Link>
+              <Link href={`/clients/${update.clientId}?tab=agent`}>Open client agent tab</Link>
             </Button>
           </div>
 
@@ -105,7 +73,8 @@ export function CenterClientUpdateSheet({
               <div className="mt-3 rounded-md bg-muted/40 p-2 text-xs">
                 <p className="font-medium">{rollout.name}</p>
                 <p className="text-muted-foreground">
-                  Rollout stage: {rollout.stage} · {rollout.clientsComplete}/{rollout.clientsTotal} complete
+                  Rollout stage: {rollout.stage} · {rollout.clientsComplete}/{rollout.clientsTotal}{" "}
+                  complete
                 </p>
               </div>
             ) : null}
@@ -119,32 +88,22 @@ export function CenterClientUpdateSheet({
           ) : null}
 
           <div className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
-            Updates execute on the client host via Edge Agent — pull images, run migrations, smoke tests, and
-            report status. Pre-update backup is triggered automatically for major upgrades.
+            Updates execute on the client host via Edge Agent — pull images, run migrations, smoke
+            tests, and report status. Pre-update backup is triggered automatically for major upgrades.
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2 border-t p-4">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1"
-            disabled={!canAct || busy}
-            onClick={() => void handlePush()}
-          >
-            {busy ? (
-              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Upload className="mr-1.5 h-3.5 w-3.5" />
-            )}
+          <Button variant="outline" size="sm" className="flex-1" disabled>
+            <Upload className="mr-1.5 h-3.5 w-3.5" />
             Push now
           </Button>
-          <Button variant="outline" size="sm" className="w-full" disabled={busy} onClick={() => void handleRollback()}>
-            {busy ? (
-              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
-            )}
+          <Button variant="outline" size="sm" className="flex-1" disabled>
+            <Zap className="mr-1.5 h-3.5 w-3.5" />
+            Schedule
+          </Button>
+          <Button variant="outline" size="sm" className="w-full" disabled>
+            <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
             Rollback to previous
           </Button>
           <Button variant="outline" size="sm" className="w-full" onClick={() => onOpenChange(false)}>

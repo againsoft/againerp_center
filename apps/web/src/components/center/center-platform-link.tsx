@@ -28,7 +28,7 @@ export function CenterPlatformLink({ className, size = "sm", showIcon = true }: 
         className,
       )}
     >
-      <Link href="/center">
+      <Link href="/">
         {showIcon ? <Shield className="mr-1.5 h-3.5 w-3.5" aria-hidden /> : null}
         Control Center
       </Link>

@@ -54,7 +54,7 @@ export function CenterLicenseDetailSheet({ license, open, onOpenChange }: Props)
               <Row label="AI entitlement" value={license.aiEnabled ? "Included" : "Not included"} />
             </dl>
             <Button asChild variant="link" size="sm" className="mt-2 h-auto p-0 text-violet-600">
-              <Link href={`/center/clients/${license.clientId}?tab=subscription`}>
+              <Link href={`/clients/${license.clientId}?tab=subscription`}>
                 Open client subscription tab
               </Link>
             </Button>

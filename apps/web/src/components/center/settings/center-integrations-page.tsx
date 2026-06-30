@@ -13,7 +13,7 @@ import {
   fetchPlatformSettings,
   upsertPlatformSetting,
   clearPlatformSetting,
-  testPageSpeedApiKey,
+  testPlatformSetting,
   type PlatformSetting,
 } from "@/lib/api/platform-settings";
 
@@ -36,7 +36,7 @@ function SettingRow({ setting, onSaved }: { setting: PlatformSetting; onSaved: (
   const [saving, setSaving] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [testing, setTesting] = useState(false);
-  const [testResult, setTestResult] = useState<{ ok: boolean; message: string; score?: number } | null>(null);
+  const [testOk, setTestOk] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSave() {
@@ -47,6 +47,7 @@ function SettingRow({ setting, onSaved }: { setting: PlatformSetting; onSaved: (
       await upsertPlatformSetting(setting.key, value.trim());
       setValue("");
       setEditing(false);
+      setTestOk(null);
       onSaved();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
@@ -58,7 +59,6 @@ function SettingRow({ setting, onSaved }: { setting: PlatformSetting; onSaved: (
   async function handleClear() {
     setClearing(true);
     setError(null);
-    setTestResult(null);
     try {
       await clearPlatformSetting(setting.key);
       onSaved();
@@ -70,21 +70,17 @@ function SettingRow({ setting, onSaved }: { setting: PlatformSetting; onSaved: (
   }
 
   async function handleTest() {
+    if (setting.key !== "openai_api_key" || !setting.configured) return;
     setTesting(true);
+    setTestOk(null);
     setError(null);
-    setTestResult(null);
     try {
-      const result = await testPageSpeedApiKey();
-      setTestResult({
-        ok: result.ok,
-        message: result.message,
-        score: result.performance_score,
-      });
+      await testPlatformSetting(setting.key);
+      setTestOk(true);
+      onSaved();
     } catch (e) {
-      setTestResult({
-        ok: false,
-        message: e instanceof Error ? e.message : "Test failed",
-      });
+      setTestOk(false);
+      setError(e instanceof Error ? e.message : "Connection test failed");
     } finally {
       setTesting(false);
     }
@@ -112,6 +108,16 @@ function SettingRow({ setting, onSaved }: { setting: PlatformSetting; onSaved: (
                 Secret
               </span>
             )}
+            {testOk === true && (
+              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                Live
+              </span>
+            )}
+            {testOk === false && (
+              <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive">
+                Test failed
+              </span>
+            )}
           </div>
           <p className="mt-0.5 text-xs text-muted-foreground">{setting.description}</p>
           {setting.configured && setting.value && (
@@ -129,31 +135,23 @@ function SettingRow({ setting, onSaved }: { setting: PlatformSetting; onSaved: (
               Docs <ExternalLink className="h-3 w-3" />
             </a>
           )}
+          {setting.configured && setting.key === "openai_api_key" && (
+            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => void handleTest()} disabled={testing}>
+              {testing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Test"}
+            </Button>
+          )}
           {setting.configured && (
             <Button variant="ghost" size="sm" onClick={handleClear} disabled={clearing}
               className="h-7 px-2 text-xs text-destructive hover:text-destructive">
               {clearing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
             </Button>
           )}
-          {setting.key === "pagespeed_api_key" && setting.configured && (
-            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => void handleTest()} disabled={testing}>
-              {testing ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Zap className="mr-1 h-3.5 w-3.5" />}
-              Test
-            </Button>
-          )}
           <Button variant="outline" size="sm" className="h-7 text-xs"
-            onClick={() => { setEditing((p) => !p); setValue(""); setError(null); setTestResult(null); }}>
+            onClick={() => { setEditing((p) => !p); setValue(""); setError(null); }}>
             {setting.configured ? "Update" : "Configure"}
           </Button>
         </div>
       </div>
-
-      {testResult && (
-        <p className={cn("mt-2 text-[11px]", testResult.ok ? "text-emerald-600 dark:text-emerald-400" : "text-destructive")}>
-          {testResult.ok ? "✓" : "✗"} {testResult.message}
-          {testResult.ok && testResult.score != null ? ` (sample score: ${testResult.score})` : ""}
-        </p>
-      )}
 
       {editing && (
         <div className="mt-3 space-y-2 border-t border-input pt-3">
@@ -231,7 +229,6 @@ export function CenterIntegrationsPageContent() {
       <CenterPageHeader
         breadcrumb="Control Center › Settings › Integrations"
         title="Integrations & API Keys"
-        live
         count={settings.length}
         description="Configure third-party API keys used across all client stores — PageSpeed, Email, SMS, AI and more."
       />

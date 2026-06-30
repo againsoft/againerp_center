@@ -10,9 +10,11 @@ import {
   type CenterBillingInvoiceFilters,
 } from "@/components/center/billing/center-billing-invoices-toolbar";
 import { Button } from "@/components/ui/button";
-import type { BillingStats } from "@/lib/hooks/use-billing-data";
 import {
+  centerBillingInvoices,
   filterCenterBillingInvoices,
+  getCenterBillingInvoice,
+  getCenterBillingStats,
   type CenterBillingInvoice,
 } from "@/lib/mock-data/center";
 import { formatCurrency } from "@/lib/utils";
@@ -22,14 +24,7 @@ const defaultFilters: CenterBillingInvoiceFilters = {
   status: "all",
 };
 
-type Props = {
-  invoices: CenterBillingInvoice[];
-  stats: BillingStats;
-  pastDueClients: string[];
-  loading?: boolean;
-};
-
-export function CenterBillingInvoicesList({ invoices, stats, pastDueClients, loading }: Props) {
+export function CenterBillingInvoicesList() {
   const searchParams = useSearchParams();
   const invoiceParam = searchParams.get("invoice");
 
@@ -38,42 +33,32 @@ export function CenterBillingInvoicesList({ invoices, stats, pastDueClients, loa
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const filtered = useMemo(
-    () => filterCenterBillingInvoices(invoices, filters),
-    [invoices, filters],
+    () => filterCenterBillingInvoices(centerBillingInvoices, filters),
+    [filters],
   );
+
+  const stats = getCenterBillingStats();
 
   useEffect(() => {
     if (!invoiceParam) return;
-    const inv = invoices.find((i) => i.id === invoiceParam);
+    const inv = getCenterBillingInvoice(invoiceParam);
     if (inv) {
       setSelected(inv);
       setSheetOpen(true);
     }
-  }, [invoiceParam, invoices]);
+  }, [invoiceParam]);
 
   function openInvoice(inv: CenterBillingInvoice) {
     setSelected(inv);
     setSheetOpen(true);
   }
 
-  if (loading && invoices.length === 0) {
-    return (
-      <div className="rounded-lg border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
-        Loading invoices…
-      </div>
-    );
-  }
-
   return (
     <>
       {stats.pastDueAmount > 0 ? (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm dark:border-red-900 dark:bg-red-950/30">
-          <strong>{formatCurrency(stats.pastDueAmount)}</strong> past due
-          {pastDueClients.length > 0 ? (
-            <> — {pastDueClients.join(", ")} subscription(s) at risk. Review dunning before license reinstatement.</>
-          ) : (
-            <> — review dunning workflow before license reinstatement.</>
-          )}
+          <strong>{formatCurrency(stats.pastDueAmount)}</strong> past due — StyleHub Fashion
+          subscription suspended. Review dunning workflow before license reinstatement.
         </div>
       ) : null}
 
@@ -81,23 +66,16 @@ export function CenterBillingInvoicesList({ invoices, stats, pastDueClients, loa
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        totalCount={invoices.length}
+        totalCount={centerBillingInvoices.length}
       />
 
       {filtered.length === 0 ? (
         <CenterEmptyState
-          title={invoices.length === 0 ? "No invoices yet" : "No invoices match your filters"}
-          description={
-            invoices.length === 0
-              ? "Invoices are created when subscriptions renew or via Stripe webhooks."
-              : undefined
-          }
+          title="No invoices match your filters"
           action={
-            invoices.length === 0 ? undefined : (
-              <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
-                Reset filters
-              </Button>
-            )
+            <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
+              Reset filters
+            </Button>
           }
         />
       ) : (

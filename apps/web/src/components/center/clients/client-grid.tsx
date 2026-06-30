@@ -56,7 +56,7 @@ export function CenterClientGrid({ clients = centerClients, className }: Props) 
             <TableRow key={client.id}>
               <TableCell>
                 <Link
-                  href={`/center/clients/${client.id}`}
+                  href={`/clients/${client.id}`}
                   className="font-medium hover:text-violet-700 dark:hover:text-violet-300"
                 >
                   {client.businessName}
@@ -110,10 +110,10 @@ export function CenterClientGrid({ clients = centerClients, className }: Props) 
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <Link href={`/center/clients/${client.id}`}>View details</Link>
+                      <Link href={`/clients/${client.id}`}>View details</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href={`/center/monitoring?client=${client.id}`}>
+                      <Link href={`/monitoring?client=${client.id}`}>
                         <Activity className="mr-2 h-3.5 w-3.5" />
                         Agent health
                       </Link>
@@ -144,7 +144,7 @@ export function CenterClientMobileCards({ clients = centerClients }: Props) {
           <div className="flex items-start justify-between gap-2">
             <div>
               <Link
-                href={`/center/clients/${client.id}`}
+                href={`/clients/${client.id}`}
                 className="font-medium hover:text-violet-700"
               >
                 {client.businessName}
@@ -167,7 +167,7 @@ export function CenterClientMobileCards({ clients = centerClients }: Props) {
           </div>
           <div className="mt-2 flex gap-2">
             <Button asChild variant="outline" size="sm" className="flex-1">
-              <Link href={`/center/clients/${client.id}`}>Details</Link>
+              <Link href={`/clients/${client.id}`}>Details</Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="flex-1">
               <a href={client.adminUrl} target="_blank" rel="noopener noreferrer">

@@ -3,11 +3,6 @@
 import { Suspense, useState } from "react";
 import { CenterAiAccessList } from "@/components/center/ai-access/center-ai-access-list";
 import { CenterPlatformAiAgents } from "@/components/center/ai-access/center-platform-ai-agents";
-import type {
-  CenterAiRecommendation,
-  CenterClientAiAccess,
-  CenterPlatformAiAgent,
-} from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 
 const views = [
@@ -15,14 +10,7 @@ const views = [
   { key: "platform" as const, label: "Platform AI agents" },
 ];
 
-type Props = {
-  fleet: CenterClientAiAccess[];
-  recommendations: CenterAiRecommendation[];
-  platformAgents: CenterPlatformAiAgent[];
-  getClientAccess: (clientId: string) => CenterClientAiAccess | undefined;
-};
-
-export function CenterAiAccessView({ fleet, recommendations, platformAgents, getClientAccess }: Props) {
+export function CenterAiAccessView() {
   const [view, setView] = useState<"fleet" | "platform">("fleet");
 
   return (
@@ -47,14 +35,10 @@ export function CenterAiAccessView({ fleet, recommendations, platformAgents, get
 
       {view === "fleet" ? (
         <Suspense fallback={null}>
-          <CenterAiAccessList
-            fleet={fleet}
-            recommendations={recommendations}
-            getClientAccess={getClientAccess}
-          />
+          <CenterAiAccessList />
         </Suspense>
       ) : (
-        <CenterPlatformAiAgents agents={platformAgents} />
+        <CenterPlatformAiAgents />
       )}
     </div>
   );

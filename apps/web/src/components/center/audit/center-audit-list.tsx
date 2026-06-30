@@ -10,7 +10,12 @@ import {
   type CenterAuditFilters,
 } from "@/components/center/audit/center-audit-toolbar";
 import { Button } from "@/components/ui/button";
-import { filterCenterAuditLogs, type CenterAuditLogEntry } from "@/lib/mock-data/center";
+import {
+  centerAuditLogs,
+  filterCenterAuditLogs,
+  getCenterAuditLog,
+  type CenterAuditLogEntry,
+} from "@/lib/mock-data/center";
 
 const defaultFilters: CenterAuditFilters = {
   search: "",
@@ -18,11 +23,7 @@ const defaultFilters: CenterAuditFilters = {
   resourceType: "all",
 };
 
-type Props = {
-  logs: CenterAuditLogEntry[];
-};
-
-export function CenterAuditList({ logs }: Props) {
+export function CenterAuditList() {
   const searchParams = useSearchParams();
   const entryParam = searchParams.get("entry");
 
@@ -30,16 +31,16 @@ export function CenterAuditList({ logs }: Props) {
   const [selected, setSelected] = useState<CenterAuditLogEntry | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const filtered = useMemo(() => filterCenterAuditLogs(logs, filters), [logs, filters]);
+  const filtered = useMemo(() => filterCenterAuditLogs(centerAuditLogs, filters), [filters]);
 
   useEffect(() => {
     if (!entryParam) return;
-    const log = logs.find((l) => l.id === entryParam);
+    const log = getCenterAuditLog(entryParam);
     if (log) {
       setSelected(log);
       setSheetOpen(true);
     }
-  }, [entryParam, logs]);
+  }, [entryParam]);
 
   function openLog(log: CenterAuditLogEntry) {
     setSelected(log);
@@ -57,23 +58,16 @@ export function CenterAuditList({ logs }: Props) {
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
-        totalCount={logs.length}
+        totalCount={centerAuditLogs.length}
       />
 
       {filtered.length === 0 ? (
         <CenterEmptyState
-          title={logs.length === 0 ? "No audit entries yet" : "No audit entries match your filters"}
-          description={
-            logs.length === 0
-              ? "Actions appear here when operators create or modify clients, licenses, and subscriptions."
-              : "Try clearing filters or search with a different term."
-          }
+          title="No audit entries match your filters"
           action={
-            logs.length === 0 ? undefined : (
-              <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
-                Reset filters
-              </Button>
-            )
+            <Button variant="outline" size="sm" onClick={() => setFilters(defaultFilters)}>
+              Reset filters
+            </Button>
           }
         />
       ) : (

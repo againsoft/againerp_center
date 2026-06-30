@@ -1,0 +1,44 @@
+---
+description: AgainERP Center — platform repository rules (Constitution v1.0.0)
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# AgainERP Center — Platform Repository
+
+This repo **is** AgainERP Center (Platform Brain). MoharazNX is the **client ERP template**.
+
+## IMPORTANT — read before ANY task
+
+1. `docs/AGAINERP_PLATFORM_CONSTITUTION.md`
+2. `docs/FROZEN_RULES.md`
+3. `docs/DEVELOPMENT_RULES.md`
+4. `PROJECT_MAP.md`
+5. `MASTER_INDEX.md`
+
+**If implementation conflicts with documentation, documentation wins.**
+
+Never redesign the platform. Never create another repository. Never duplicate Platform packages. Never place AI Core inside a Client ERP.
+
+## Mandatory read order (full)
+
+1. Constitution → 2. FROZEN_RULES → 3. DEVELOPMENT_RULES → 4. README → 5. MASTER_INDEX → 6. PROJECT_MAP → 7. ARCHITECTURE → 8. ControlCenter/MASTER_INDEX → 9. Task doc
+
+## Architecture freeze — v1.0.0 FROZEN
+
+Platform Brain: AgainERP Center · Business template: MoharazNX
+
+## Platform structure (do not change)
+
+```
+platform/ — ai-core, runtime-sdk, shared-contracts, provider-gateway, plugin-sdk, integration-sdk, edge-sdk, monitoring-sdk, licensing-sdk, update-sdk, governance
+```
+
+## AI call chain (mandatory)
+
+`Client UI → @againerp/runtime → Provider Gateway → LLM`
+
+## Docs entry
+
+`docs/AGAINERP_PLATFORM_CONSTITUTION.md` → `BRAIN.md` → `docs/PLATFORM_PACKAGE_OWNERSHIP.md`

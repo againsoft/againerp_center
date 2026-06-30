@@ -55,7 +55,7 @@ export function CenterBillingInvoiceSheet({ invoice, open, onOpenChange }: Props
               {invoice.externalRef ? <Row label="Gateway ref" value={invoice.externalRef} mono /> : null}
             </dl>
             <Button asChild variant="link" size="sm" className="mt-2 h-auto p-0 text-violet-600">
-              <Link href={`/center/clients/${invoice.clientId}?tab=subscription`}>
+              <Link href={`/clients/${invoice.clientId}?tab=subscription`}>
                 Open client subscription tab
               </Link>
             </Button>

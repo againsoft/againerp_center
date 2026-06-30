@@ -10,27 +10,14 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
+  centerBackupRecords,
   centerBackupStatusColors,
   centerBackupStorageLabels,
   formatBackupSizeMb,
-  type CenterBackupRecord,
 } from "@/lib/mock-data/center";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  runs: CenterBackupRecord[];
-  loading?: boolean;
-};
-
-export function CenterBackupRunsTable({ runs, loading }: Props) {
-  if (loading && runs.length === 0) {
-    return (
-      <div className="rounded-lg border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
-        Loading backup runs…
-      </div>
-    );
-  }
-
+export function CenterBackupRunsTable() {
   return (
     <div className="rounded-lg border bg-card">
       <div className="border-b px-4 py-3">
@@ -39,47 +26,43 @@ export function CenterBackupRunsTable({ runs, loading }: Props) {
           Metadata reported by Edge Agent — encrypted files stay on client storage.
         </p>
       </div>
-      {runs.length === 0 ? (
-        <div className="px-4 py-8 text-center text-sm text-muted-foreground">No backup runs recorded yet.</div>
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Client</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Started</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Size</TableHead>
-              <TableHead>Storage</TableHead>
-              <TableHead>Checksum</TableHead>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Client</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Started</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Size</TableHead>
+            <TableHead>Storage</TableHead>
+            <TableHead>Checksum</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {centerBackupRecords.map((r) => (
+            <TableRow key={r.id}>
+              <TableCell className="font-medium">{r.businessName}</TableCell>
+              <TableCell>
+                <Badge variant="outline" className="capitalize text-[10px]">
+                  {r.type.replace("_", " ")}
+                </Badge>
+              </TableCell>
+              <TableCell className="text-sm">{r.startedAt}</TableCell>
+              <TableCell>
+                <Badge
+                  variant="secondary"
+                  className={cn("capitalize text-[10px]", centerBackupStatusColors[r.status])}
+                >
+                  {r.status}
+                </Badge>
+              </TableCell>
+              <TableCell className="text-sm tabular-nums">{formatBackupSizeMb(r.sizeMb)}</TableCell>
+              <TableCell className="text-xs">{centerBackupStorageLabels[r.storageTarget]}</TableCell>
+              <TableCell className="font-mono text-[10px]">{r.checksumMasked}</TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {runs.map((r) => (
-              <TableRow key={r.id}>
-                <TableCell className="font-medium">{r.businessName}</TableCell>
-                <TableCell>
-                  <Badge variant="outline" className="capitalize text-[10px]">
-                    {r.type.replace("_", " ")}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-sm">{r.startedAt}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant="secondary"
-                    className={cn("capitalize text-[10px]", centerBackupStatusColors[r.status])}
-                  >
-                    {r.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-sm tabular-nums">{formatBackupSizeMb(r.sizeMb)}</TableCell>
-                <TableCell className="text-xs">{centerBackupStorageLabels[r.storageTarget]}</TableCell>
-                <TableCell className="font-mono text-[10px]">{r.checksumMasked}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }

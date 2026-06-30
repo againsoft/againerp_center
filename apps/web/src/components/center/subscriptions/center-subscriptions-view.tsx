@@ -1,23 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { CenterEmptyState } from "@/components/center/center-empty-state";
 import { CenterFleetSubscriptionsTable } from "@/components/center/subscriptions/center-fleet-subscriptions-table";
 import { CenterPlanCatalog } from "@/components/center/subscriptions/center-plan-catalog";
 import { cn } from "@/lib/utils";
-import type { CenterClientSubscription } from "@/lib/mock-data/center";
 
 const views = [
   { key: "plans" as const, label: "Plan catalog" },
   { key: "fleet" as const, label: "Fleet subscriptions" },
 ];
 
-type Props = {
-  subscriptions?: CenterClientSubscription[];
-};
-
-export function CenterSubscriptionsView({ subscriptions = [] }: Props) {
-  const [view, setView] = useState<"plans" | "fleet">("fleet");
+export function CenterSubscriptionsView() {
+  const [view, setView] = useState<"plans" | "fleet">("plans");
 
   return (
     <div className="space-y-4">
@@ -39,16 +33,7 @@ export function CenterSubscriptionsView({ subscriptions = [] }: Props) {
         ))}
       </div>
 
-      {view === "plans" ? (
-        <CenterPlanCatalog />
-      ) : subscriptions.length === 0 ? (
-        <CenterEmptyState
-          title="No fleet subscriptions yet"
-          description="Subscriptions are created automatically when you add a client."
-        />
-      ) : (
-        <CenterFleetSubscriptionsTable subscriptions={subscriptions} />
-      )}
+      {view === "plans" ? <CenterPlanCatalog /> : <CenterFleetSubscriptionsTable />}
     </div>
   );
 }

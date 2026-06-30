@@ -1,13 +1,11 @@
 "use client";
 
 import { Bot, Cpu, Sparkles, TrendingUp } from "lucide-react";
-import type { AiStats } from "@/lib/hooks/use-ai-data";
+import { getCenterAiStats } from "@/lib/mock-data/center";
 
-type Props = {
-  stats: AiStats;
-};
+export function CenterAiStats() {
+  const stats = getCenterAiStats();
 
-export function CenterAiStats({ stats }: Props) {
   const cards = [
     {
       label: "AI enabled",
